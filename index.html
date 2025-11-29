@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule a Meeting - Demo</title>
+    <title>Google Meet Scheduler - Demo</title>
+    <meta name="description" content="Open source meeting scheduler with Google Calendar integration. Try the demo!">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,6 +17,7 @@
             --success: #059669;
             --success-light: #D1FAE5;
             --danger: #DC2626;
+            --danger-light: #FEE2E2;
             --warning: #F59E0B;
             --warning-light: #FEF3C7;
             --gray-50: #F9FAFB;
@@ -28,6 +30,36 @@
             --gray-700: #374151;
             --gray-800: #1F2937;
             --gray-900: #111827;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: white;
+            --sidebar-bg: var(--gray-50);
+            --text-primary: var(--gray-800);
+            --text-secondary: var(--gray-600);
+            --border-color: var(--gray-200);
+        }
+
+        [data-theme="dark"] {
+            --primary: #818CF8;
+            --primary-dark: #6366F1;
+            --primary-light: #312E81;
+            --success: #34D399;
+            --success-light: #064E3B;
+            --gray-50: #1F2937;
+            --gray-100: #374151;
+            --gray-200: #4B5563;
+            --gray-300: #6B7280;
+            --gray-400: #9CA3AF;
+            --gray-500: #D1D5DB;
+            --gray-600: #E5E7EB;
+            --gray-700: #F3F4F6;
+            --gray-800: #F9FAFB;
+            --gray-900: #FFFFFF;
+            --bg-gradient: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+            --card-bg: #1F2937;
+            --sidebar-bg: #111827;
+            --text-primary: #F9FAFB;
+            --text-secondary: #D1D5DB;
+            --border-color: #4B5563;
         }
 
         * {
@@ -38,10 +70,11 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-gradient);
             min-height: 100vh;
-            color: var(--gray-800);
+            color: var(--text-primary);
             line-height: 1.5;
+            transition: background 0.3s, color 0.3s;
         }
 
         /* Demo Banner */
@@ -68,6 +101,29 @@
             font-weight: 600;
         }
 
+        .theme-toggle {
+            position: fixed;
+            top: 60px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -79,21 +135,22 @@
         }
 
         .scheduler-card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 16px;
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
             overflow: hidden;
             display: grid;
-            grid-template-columns: 280px 1fr 320px;
-            min-height: 600px;
+            grid-template-columns: 280px 1fr 340px;
+            min-height: 620px;
             width: 100%;
+            transition: background 0.3s;
         }
 
         /* Sidebar */
         .sidebar {
-            background: var(--gray-50);
+            background: var(--sidebar-bg);
             padding: 32px 24px;
-            border-right: 1px solid var(--gray-200);
+            border-right: 1px solid var(--border-color);
         }
 
         .brand {
@@ -152,7 +209,7 @@
         }
 
         .meeting-info p {
-            color: var(--gray-600);
+            color: var(--text-secondary);
             font-size: 14px;
             margin-bottom: 24px;
         }
@@ -168,7 +225,7 @@
             align-items: center;
             gap: 12px;
             font-size: 14px;
-            color: var(--gray-600);
+            color: var(--text-secondary);
         }
 
         .detail-item i {
@@ -177,11 +234,39 @@
             width: 24px;
         }
 
+        .features-list {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .features-list h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-400);
+            margin-bottom: 12px;
+        }
+
+        .feature-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 500;
+            border-radius: 4px;
+            margin: 2px;
+        }
+
         /* Calendar Section */
         .calendar-section {
             padding: 32px;
             display: flex;
             flex-direction: column;
+            background: var(--card-bg);
         }
 
         .calendar-header {
@@ -206,19 +291,19 @@
         .month-nav button {
             width: 36px;
             height: 36px;
-            border: 1px solid var(--gray-200);
-            background: white;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
             border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--gray-600);
+            color: var(--text-secondary);
             transition: all 0.2s;
         }
 
         .month-nav button:hover:not(:disabled) {
-            background: var(--gray-50);
+            background: var(--gray-100);
             border-color: var(--gray-300);
         }
 
@@ -259,7 +344,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
-            color: var(--gray-700);
+            color: var(--text-primary);
             position: relative;
         }
 
@@ -307,10 +392,10 @@
         .timezone-info {
             margin-top: 24px;
             padding: 12px;
-            background: var(--gray-50);
+            background: var(--gray-100);
             border-radius: 8px;
             font-size: 13px;
-            color: var(--gray-600);
+            color: var(--text-secondary);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -322,9 +407,9 @@
 
         /* Right Panel */
         .right-panel {
-            background: var(--gray-50);
+            background: var(--sidebar-bg);
             padding: 32px 24px;
-            border-left: 1px solid var(--gray-200);
+            border-left: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
         }
@@ -340,20 +425,20 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 400px;
+            max-height: 350px;
             overflow-y: auto;
         }
 
         .time-slot {
             padding: 12px 16px;
-            background: white;
-            border: 1px solid var(--gray-200);
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
             font-size: 14px;
             font-weight: 500;
-            color: var(--gray-700);
+            color: var(--text-primary);
         }
 
         .time-slot:hover {
@@ -408,7 +493,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--gray-600);
+            color: var(--text-secondary);
             transition: all 0.2s;
         }
 
@@ -417,10 +502,10 @@
         }
 
         .selected-datetime {
-            background: white;
+            background: var(--card-bg);
             padding: 12px;
             border-radius: 8px;
-            border: 1px solid var(--gray-200);
+            border: 1px solid var(--border-color);
             margin-bottom: 8px;
         }
 
@@ -443,7 +528,7 @@
         .form-group label {
             font-size: 13px;
             font-weight: 500;
-            color: var(--gray-700);
+            color: var(--text-primary);
         }
 
         .form-group input,
@@ -453,6 +538,8 @@
             border-radius: 8px;
             font-size: 14px;
             font-family: inherit;
+            background: var(--card-bg);
+            color: var(--text-primary);
             transition: all 0.2s;
         }
 
@@ -463,9 +550,138 @@
             box-shadow: 0 0 0 3px var(--primary-light);
         }
 
+        .form-group input.error {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px var(--danger-light);
+        }
+
+        .form-group input.valid {
+            border-color: var(--success);
+        }
+
         .form-group textarea {
             resize: vertical;
             min-height: 80px;
+        }
+
+        .field-hint {
+            font-size: 11px;
+            color: var(--gray-400);
+        }
+
+        .field-error {
+            font-size: 12px;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* Email Verification */
+        .verify-btn {
+            width: 100%;
+            padding: 10px 16px;
+            margin-top: 8px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .verify-btn:hover:not(:disabled) {
+            background: var(--primary-dark);
+        }
+
+        .verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .otp-section {
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .otp-boxes {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .otp-digit {
+            width: 42px;
+            height: 48px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            border: 2px solid var(--gray-300);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .otp-digit:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .otp-digit.filled {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .otp-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .otp-verify-btn {
+            padding: 10px 24px;
+            background: var(--gray-900);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .otp-verify-btn:hover:not(:disabled) {
+            background: var(--gray-700);
+        }
+
+        .otp-verify-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .email-verified {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px;
+            background: var(--success-light);
+            color: var(--success);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
         }
 
         .submit-btn {
@@ -479,6 +695,10 @@
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .submit-btn:hover:not(:disabled) {
@@ -512,6 +732,13 @@
             align-items: center;
             justify-content: center;
             margin-bottom: 16px;
+            animation: bounceIn 0.5s ease;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
 
         .success-icon i {
@@ -527,16 +754,16 @@
         }
 
         .success-section p {
-            color: var(--gray-600);
+            color: var(--text-secondary);
             font-size: 14px;
             margin-bottom: 16px;
         }
 
         .success-details {
-            background: white;
+            background: var(--card-bg);
             padding: 16px;
             border-radius: 8px;
-            border: 1px solid var(--gray-200);
+            border: 1px solid var(--border-color);
             width: 100%;
             margin-bottom: 16px;
             text-align: left;
@@ -586,16 +813,89 @@
             flex-shrink: 0;
         }
 
-        .back-link {
-            color: var(--primary);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
         }
 
-        .back-link:hover {
-            text-decoration: underline;
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .action-btn.primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .action-btn.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .action-btn.secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--gray-100);
+        }
+
+        /* Confetti */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                opacity: 1;
+                transform: translateY(-100px) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+
+        /* Spinner */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Responsive */
@@ -607,12 +907,17 @@
 
             .sidebar {
                 border-right: none;
-                border-bottom: 1px solid var(--gray-200);
+                border-bottom: 1px solid var(--border-color);
             }
 
             .right-panel {
                 border-left: none;
-                border-top: 1px solid var(--gray-200);
+                border-top: 1px solid var(--border-color);
+            }
+
+            .theme-toggle {
+                top: 60px;
+                right: 10px;
             }
         }
 
@@ -626,6 +931,12 @@
             .right-panel {
                 padding: 20px 16px;
             }
+
+            .otp-digit {
+                width: 36px;
+                height: 42px;
+                font-size: 18px;
+            }
         }
 
         .hidden {
@@ -634,10 +945,18 @@
     </style>
 </head>
 <body>
+    <!-- Confetti Container -->
+    <div class="confetti-container" id="confetti-container"></div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+        <i class="bi bi-moon-fill" id="themeIcon"></i>
+    </button>
+
     <!-- Top Banner -->
     <div class="demo-banner">
         <i class="bi bi-github"></i>
-        <span>Open Source by <a href="https://github.com/shekharh500" target="_blank">@shekharh500</a> &bull; <a href="https://github.com/shekharh500/google-meet-scheduler-demo" target="_blank">View on GitHub</a></span>
+        <span>Open Source by <a href="https://github.com/shekharh500" target="_blank">@shekharh500</a> &bull; <a href="https://github.com/shekharh500/google-meet-scheduler-demo" target="_blank">Star on GitHub</a></span>
     </div>
 
     <div class="container">
@@ -671,7 +990,19 @@
                             <i class="bi bi-calendar3"></i>
                             <span>Up to 15 days in advance</span>
                         </div>
+                        <div class="detail-item">
+                            <i class="bi bi-shield-check"></i>
+                            <span>Email verification</span>
+                        </div>
                     </div>
+                </div>
+
+                <div class="features-list">
+                    <h4>Demo Features</h4>
+                    <span class="feature-tag"><i class="bi bi-check"></i> OTP Verification</span>
+                    <span class="feature-tag"><i class="bi bi-check"></i> Business Email Only</span>
+                    <span class="feature-tag"><i class="bi bi-check"></i> Dark Mode</span>
+                    <span class="feature-tag"><i class="bi bi-check"></i> Duplicate Prevention</span>
                 </div>
             </div>
 
@@ -736,12 +1067,39 @@
                     <form id="bookingForm">
                         <div class="form-group">
                             <label for="name">Your Name *</label>
-                            <input type="text" id="name" name="name" required placeholder="John Doe">
+                            <input type="text" id="name" name="name" required placeholder="John Doe" minlength="2">
+                            <div class="field-error" id="nameError" style="display: none;"></div>
                         </div>
 
                         <div class="form-group">
-                            <label for="email">Email Address *</label>
-                            <input type="email" id="email" name="email" required placeholder="john@example.com">
+                            <label for="email">Business Email *</label>
+                            <input type="email" id="email" name="email" required placeholder="john@company.com">
+                            <div class="field-hint">Business email required (no Gmail, Yahoo, etc.)</div>
+                            <div class="field-error" id="emailError" style="display: none;"></div>
+                            <button type="button" class="verify-btn" id="sendOtpBtn" disabled>
+                                <i class="bi bi-envelope-check"></i> Verify Email
+                            </button>
+                        </div>
+
+                        <!-- OTP Section -->
+                        <div class="form-group otp-section" id="otpSection" style="display: none;">
+                            <label>Enter Verification Code</label>
+                            <div class="otp-boxes">
+                                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                            </div>
+                            <div class="otp-actions">
+                                <button type="button" class="otp-verify-btn" id="verifyOtpBtn">Verify Code</button>
+                            </div>
+                            <div class="field-hint" id="otpHint" style="text-align: center; margin-top: 8px;">Demo: Use code 123456</div>
+                            <div class="field-error" id="otpError" style="display: none; justify-content: center;"></div>
+                            <div class="email-verified" id="emailVerified" style="display: none;">
+                                <i class="bi bi-check-circle-fill"></i> Email verified!
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -749,8 +1107,8 @@
                             <textarea id="notes" name="notes" placeholder="Brief description of what you'd like to talk about..."></textarea>
                         </div>
 
-                        <button type="submit" class="submit-btn" id="submitBtn">
-                            Confirm Booking
+                        <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                            <i class="bi bi-check-circle"></i> Confirm Booking
                         </button>
                     </form>
                 </div>
@@ -776,6 +1134,10 @@
                             <span class="label">Duration</span>
                             <span class="value">45 minutes</span>
                         </div>
+                        <div class="detail-row">
+                            <span class="label">Meeting ID</span>
+                            <span class="value" id="success-id"></span>
+                        </div>
                     </div>
 
                     <div class="demo-note">
@@ -783,7 +1145,14 @@
                         <span>This is a demo. No actual booking was made.</span>
                     </div>
 
-                    <a class="back-link" id="tryAgain">Book Another Meeting</a>
+                    <div class="action-buttons">
+                        <a href="#" class="action-btn primary" id="joinMeetBtn">
+                            <i class="bi bi-camera-video"></i> Join Google Meet (Demo)
+                        </a>
+                        <button class="action-btn secondary" id="tryAgain">
+                            <i class="bi bi-plus-circle"></i> Book Another Meeting
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -792,15 +1161,24 @@
     <script>
         // ============================================
         // DEMO - No Backend Required
-        // All data is simulated locally
+        // Features: OTP, Business Email, Dark Mode
         // ============================================
 
         // Configuration
         const config = {
             meetingDuration: 45,
             maxDaysInAdvance: 15,
-            minHoursNotice: 4
+            minHoursNotice: 4,
+            demoOtp: '123456'
         };
+
+        // Personal email domains to block
+        const personalDomains = [
+            'gmail.com', 'yahoo.com', 'yahoo.co.in', 'hotmail.com', 'outlook.com',
+            'live.com', 'msn.com', 'aol.com', 'icloud.com', 'me.com', 'mac.com',
+            'protonmail.com', 'proton.me', 'zoho.com', 'mail.com', 'gmx.com',
+            'yandex.com', 'tutanota.com', 'fastmail.com', 'rediffmail.com'
+        ];
 
         // Working hours (Mon-Fri: 9-5, Sunday: 2-8, Saturday: closed)
         const workingHours = {
@@ -818,6 +1196,16 @@
         let currentYear = new Date().getFullYear();
         let selectedDate = null;
         let selectedSlot = null;
+        let isEmailVerified = false;
+        let bookedEmails = new Set(); // Track booked emails for demo
+
+        // DOM Elements
+        const emailInput = document.getElementById('email');
+        const sendOtpBtn = document.getElementById('sendOtpBtn');
+        const otpSection = document.getElementById('otpSection');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        const emailVerified = document.getElementById('emailVerified');
+        const submitBtn = document.getElementById('submitBtn');
 
         // Initialize
         function init() {
@@ -825,6 +1213,161 @@
                 `Times shown in ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
             renderCalendar();
             setupEventListeners();
+            setupOtpBoxes();
+            loadTheme();
+        }
+
+        // Theme Toggle
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('scheduler-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('scheduler-theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('themeIcon');
+            icon.className = theme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        }
+
+        // Email Validation
+        function isPersonalEmail(email) {
+            const domain = email.split('@')[1]?.toLowerCase();
+            return personalDomains.includes(domain);
+        }
+
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return { valid: false, error: 'Please enter a valid email address' };
+            }
+            if (isPersonalEmail(email)) {
+                return { valid: false, error: 'Please use a business email (no Gmail, Yahoo, etc.)' };
+            }
+            if (bookedEmails.has(email.toLowerCase())) {
+                return { valid: false, error: 'This email already has a booking' };
+            }
+            return { valid: true };
+        }
+
+        // OTP Setup
+        function setupOtpBoxes() {
+            const boxes = document.querySelectorAll('.otp-digit');
+            boxes.forEach((box, idx) => {
+                box.addEventListener('input', (e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, '');
+                    e.target.value = val;
+                    if (val && idx < boxes.length - 1) {
+                        boxes[idx + 1].focus();
+                    }
+                    e.target.classList.toggle('filled', val);
+                });
+
+                box.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                        boxes[idx - 1].focus();
+                    }
+                    if (e.key === 'Enter') {
+                        verifyOtp();
+                    }
+                });
+
+                box.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const data = (e.clipboardData || window.clipboardData).getData('text');
+                    const digits = data.replace(/[^0-9]/g, '').slice(0, 6);
+                    digits.split('').forEach((d, i) => {
+                        if (boxes[i]) {
+                            boxes[i].value = d;
+                            boxes[i].classList.add('filled');
+                        }
+                    });
+                });
+            });
+        }
+
+        function getOtpValue() {
+            return Array.from(document.querySelectorAll('.otp-digit')).map(b => b.value).join('');
+        }
+
+        function clearOtpBoxes() {
+            document.querySelectorAll('.otp-digit').forEach(b => {
+                b.value = '';
+                b.classList.remove('filled');
+            });
+        }
+
+        // Send OTP (simulated)
+        function sendOtp() {
+            const email = emailInput.value.trim().toLowerCase();
+            const validation = validateEmail(email);
+
+            if (!validation.valid) {
+                showError('emailError', validation.error);
+                emailInput.classList.add('error');
+                return;
+            }
+
+            sendOtpBtn.disabled = true;
+            sendOtpBtn.innerHTML = '<div class="spinner"></div> Sending...';
+
+            // Simulate API delay
+            setTimeout(() => {
+                otpSection.style.display = 'block';
+                sendOtpBtn.style.display = 'none';
+                emailInput.readOnly = true;
+                document.querySelector('.otp-digit').focus();
+            }, 800);
+        }
+
+        // Verify OTP (simulated)
+        function verifyOtp() {
+            const otp = getOtpValue();
+            const otpError = document.getElementById('otpError');
+
+            if (otp.length !== 6) {
+                showError('otpError', 'Please enter all 6 digits');
+                return;
+            }
+
+            verifyOtpBtn.disabled = true;
+            verifyOtpBtn.textContent = 'Verifying...';
+
+            setTimeout(() => {
+                if (otp === config.demoOtp) {
+                    // Success
+                    isEmailVerified = true;
+                    document.querySelector('.otp-boxes').style.display = 'none';
+                    document.querySelector('.otp-actions').style.display = 'none';
+                    document.getElementById('otpHint').style.display = 'none';
+                    emailVerified.style.display = 'flex';
+                    emailInput.classList.add('valid');
+                    emailInput.classList.remove('error');
+                    updateSubmitBtn();
+                } else {
+                    showError('otpError', 'Invalid code. Try 123456');
+                    verifyOtpBtn.disabled = false;
+                    verifyOtpBtn.textContent = 'Verify Code';
+                }
+            }, 600);
+        }
+
+        function showError(elementId, message) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<i class="bi bi-exclamation-circle"></i> ${message}`;
+            el.style.display = 'flex';
+        }
+
+        function updateSubmitBtn() {
+            const name = document.getElementById('name').value.trim();
+            submitBtn.disabled = !(isEmailVerified && name.length >= 2);
         }
 
         // Get available dates
@@ -862,7 +1405,6 @@
             let current = startH * 60 + startM;
             const end = endH * 60 + endM - config.meetingDuration;
 
-            // Check if today - apply minimum notice
             const now = new Date();
             const isToday = dateStr === formatDate(now);
             const minTime = isToday ? now.getHours() * 60 + now.getMinutes() + (config.minHoursNotice * 60) : 0;
@@ -893,7 +1435,6 @@
 
             document.getElementById('currentMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
 
-            // Clear days
             grid.querySelectorAll('.calendar-day').forEach(d => d.remove());
 
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
@@ -903,14 +1444,12 @@
 
             const availableDates = getAvailableDates();
 
-            // Empty cells
             for (let i = 0; i < firstDay; i++) {
                 const empty = document.createElement('div');
                 empty.className = 'calendar-day empty';
                 grid.appendChild(empty);
             }
 
-            // Days
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayEl = document.createElement('div');
                 dayEl.className = 'calendar-day';
@@ -939,7 +1478,6 @@
                 grid.appendChild(dayEl);
             }
 
-            // Update nav buttons
             const now = new Date();
             document.getElementById('prevMonth').disabled =
                 (currentYear === now.getFullYear() && currentMonth === now.getMonth());
@@ -1016,21 +1554,61 @@
             e.preventDefault();
 
             const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
+            const email = document.getElementById('email').value.trim().toLowerCase();
 
-            if (!name || !email) {
-                alert('Please fill in all required fields.');
+            if (!name || name.length < 2) {
+                showError('nameError', 'Please enter a valid name');
                 return;
             }
 
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.textContent = 'Booking...';
+            if (!isEmailVerified) {
+                showError('emailError', 'Please verify your email first');
+                return;
+            }
 
-            // Simulate API call
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner"></div> Booking...';
+
             setTimeout(() => {
+                bookedEmails.add(email);
                 showSuccess();
-            }, 800);
+            }, 1000);
+        }
+
+        // Confetti Animation
+        function launchConfetti() {
+            const container = document.getElementById('confetti-container');
+            const colors = ['#4F46E5', '#7C3AED', '#EC4899', '#F59E0B', '#10B981', '#3B82F6'];
+
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.animation = `confetti-fall ${Math.random() * 2 + 2}s ease forwards`;
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                container.appendChild(confetti);
+            }
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 4000);
+        }
+
+        // Generate random meeting ID
+        function generateMeetingId() {
+            const chars = 'abcdefghijklmnopqrstuvwxyz';
+            let id = '';
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    id += chars[Math.floor(Math.random() * chars.length)];
+                }
+                if (i < 2) id += '-';
+            }
+            return id;
         }
 
         // Show success
@@ -1042,18 +1620,42 @@
             document.getElementById('success-date').textContent =
                 dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById('success-time').textContent = selectedSlot.display;
+            document.getElementById('success-id').textContent = generateMeetingId();
+
+            launchConfetti();
         }
 
         // Reset
         function resetBooking() {
             selectedDate = null;
             selectedSlot = null;
+            isEmailVerified = false;
 
             document.getElementById('success-section').classList.remove('active');
             document.getElementById('slots-section').classList.remove('hidden');
             document.getElementById('bookingForm').reset();
-            document.getElementById('submitBtn').disabled = false;
-            document.getElementById('submitBtn').textContent = 'Confirm Booking';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').innerHTML = '<i class="bi bi-check-circle"></i> Confirm Booking';
+
+            // Reset email verification
+            otpSection.style.display = 'none';
+            sendOtpBtn.style.display = 'block';
+            sendOtpBtn.disabled = true;
+            sendOtpBtn.innerHTML = '<i class="bi bi-envelope-check"></i> Verify Email';
+            emailInput.readOnly = false;
+            emailInput.classList.remove('valid', 'error');
+            emailVerified.style.display = 'none';
+            document.querySelector('.otp-boxes').style.display = 'flex';
+            document.querySelector('.otp-actions').style.display = 'flex';
+            document.getElementById('otpHint').style.display = 'block';
+            clearOtpBoxes();
+            verifyOtpBtn.disabled = false;
+            verifyOtpBtn.textContent = 'Verify Code';
+
+            // Hide errors
+            document.getElementById('emailError').style.display = 'none';
+            document.getElementById('nameError').style.display = 'none';
+            document.getElementById('otpError').style.display = 'none';
 
             document.getElementById('slots-container').innerHTML = `
                 <div class="no-slots">
@@ -1082,6 +1684,57 @@
             document.getElementById('backToSlots').addEventListener('click', hideBookingForm);
             document.getElementById('bookingForm').addEventListener('submit', submitBooking);
             document.getElementById('tryAgain').addEventListener('click', resetBooking);
+            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+            // Email validation on input
+            emailInput.addEventListener('input', () => {
+                const email = emailInput.value.trim();
+                const validation = validateEmail(email);
+                sendOtpBtn.disabled = !validation.valid;
+                emailInput.classList.remove('error');
+                document.getElementById('emailError').style.display = 'none';
+
+                // Reset verification if email changes
+                if (isEmailVerified) {
+                    isEmailVerified = false;
+                    otpSection.style.display = 'none';
+                    sendOtpBtn.style.display = 'block';
+                    emailInput.readOnly = false;
+                    emailInput.classList.remove('valid');
+                    emailVerified.style.display = 'none';
+                    document.querySelector('.otp-boxes').style.display = 'flex';
+                    document.querySelector('.otp-actions').style.display = 'flex';
+                    clearOtpBoxes();
+                    updateSubmitBtn();
+                }
+            });
+
+            emailInput.addEventListener('blur', () => {
+                const email = emailInput.value.trim();
+                if (email) {
+                    const validation = validateEmail(email);
+                    if (!validation.valid) {
+                        showError('emailError', validation.error);
+                        emailInput.classList.add('error');
+                    }
+                }
+            });
+
+            // Name validation
+            document.getElementById('name').addEventListener('input', () => {
+                document.getElementById('nameError').style.display = 'none';
+                updateSubmitBtn();
+            });
+
+            // OTP buttons
+            sendOtpBtn.addEventListener('click', sendOtp);
+            verifyOtpBtn.addEventListener('click', verifyOtp);
+
+            // Join Meet button (demo)
+            document.getElementById('joinMeetBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                alert('This is a demo. In production, this would open your Google Meet link!');
+            });
         }
 
         // Start

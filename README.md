@@ -1,289 +1,197 @@
 # Google Meet Scheduler
 
-A self-hosted meeting scheduler with **Google Calendar integration** and **automatic Google Meet link generation**.
+<div align="center">
 
-**Author**: [@shekharh500](https://github.com/shekharh500)
+![Version](https://img.shields.io/badge/version-2.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Demo](https://img.shields.io/badge/demo-live-brightgreen.svg)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)
+
+**A self-hosted meeting scheduler with Google Calendar integration and automatic Google Meet link generation.**
+
+[Live Demo](https://shekharh500.github.io/google-meet-scheduler-demo.github.io/) • [Report Bug](https://github.com/shekharh500/google-meet-scheduler-demo/issues) • [Request Feature](https://github.com/shekharh500/google-meet-scheduler-demo/issues)
+
+![Demo Screenshot](demo.png)
+
+</div>
+
+---
+
+## Features
+
+| Feature | Demo | Production |
+|---------|:----:|:----------:|
+| 📅 Interactive Calendar | ✅ | ✅ |
+| ⏰ Time Slot Selection | ✅ | ✅ |
+| 🔐 OTP Email Verification | ✅ (simulated) | ✅ |
+| 🏢 Business Email Only | ✅ | ✅ |
+| 🚫 Duplicate Booking Prevention | ✅ | ✅ |
+| 🌙 Dark Mode | ✅ | ✅ |
+| 🎉 Success Confetti | ✅ | ✅ |
+| 📧 Calendar Invites | ❌ | ✅ |
+| 🔗 Google Meet Links | ❌ | ✅ |
+
+---
+
+## Quick Start
+
+### Try the Demo (No Setup Required)
+
+```bash
+# Clone the repository
+git clone https://github.com/shekharh500/google-meet-scheduler-demo.git
+
+# Open the demo
+open index.html
+```
+
+Or simply open `index.html` in your browser - it works immediately with mock data!
+
+**Demo OTP Code: `123456`**
 
 ---
 
 ## What's Included
 
-| File | Description |
-|------|-------------|
-| `index.html` | **Demo** - Try the UI with mock data (no setup needed) |
-| `frontend/index.html` | **Production frontend** - Connects to real backend |
-| `backend/` | **API server** - Google Calendar integration |
+```
+google-meet-scheduler-demo/
+├── index.html           # Demo - Try the UI (no setup needed)
+├── frontend/
+│   └── index.html       # Production frontend
+├── backend/
+│   ├── server.js        # Express API server
+│   ├── package.json
+│   └── .env.example     # Environment template
+├── demo.png             # Screenshot
+├── VisualDiagram.png    # Architecture diagram
+└── README.md
+```
 
 ---
 
-## Quick Demo
+## Demo Features
 
-**Live Demo:** [Visit the deployed scheduler](https://shekharh500.github.io/google-meet-scheduler-demo.github.io/)
+### 🔐 OTP Email Verification
+The demo simulates OTP-based email verification. Enter any business email and use code `123456` to verify.
 
-Or try the local demo - just open `index.html` in your browser. It works immediately with mock data!
+### 🏢 Business Email Validation
+Personal email domains are blocked:
+- Gmail, Yahoo, Outlook, Hotmail
+- iCloud, ProtonMail, AOL
+- And 15+ other personal email providers
 
-![Demo Screenshot](demo.png)
+Only business/company email addresses are accepted.
 
-![Visual Diagram](VisualDiagram.png)
+### 🚫 Duplicate Booking Prevention
+Once an email is used to book a meeting (in the current session), it cannot book another slot.
+
+### 🌙 Dark Mode
+Toggle between light and dark themes. Your preference is saved to localStorage.
+
+### 🎉 Success Animation
+Confetti celebration when a booking is confirmed!
 
 ---
 
-## Full Setup Guide (Real Google Calendar Integration)
+## Production Setup
 
-Follow these steps to deploy your own scheduler with real Google Calendar integration.
+For real Google Calendar integration, follow these steps:
 
 ### Prerequisites
 
 - Node.js 18+
-- Google account
-- Vercel account (free) for deployment
+- Google Cloud account
+- Vercel account (free)
 
----
-
-## Step 1: Create Google Cloud Project
+### Step 1: Google Cloud Setup
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project: `Meeting Scheduler`
+3. Enable **Google Calendar API**
+4. Configure **OAuth consent screen** (External)
+5. Add scopes:
+   - `https://www.googleapis.com/auth/calendar`
+   - `https://www.googleapis.com/auth/calendar.events`
 
-2. Click **Select a project** → **New Project**
-   - Name: `Meeting Scheduler`
-   - Click **Create**
+### Step 2: Create OAuth Credentials
 
-3. Wait for project creation, then select it
+1. Go to **Credentials** → **Create Credentials** → **OAuth client ID**
+2. Select **Web application**
+3. Add redirect URI: `http://localhost:3000/auth/callback`
+4. Save your **Client ID** and **Client Secret**
 
----
+### Step 3: Backend Setup
 
-## Step 2: Enable Google Calendar API
+```bash
+cd backend
+npm install
+cp .env.example .env
+```
 
-1. Go to **APIs & Services** → **Library**
+Edit `.env`:
+```env
+GOOGLE_CLIENT_ID=your_client_id
+GOOGLE_CLIENT_SECRET=your_client_secret
+REDIRECT_URI=http://localhost:3000/auth/callback
+FRONTEND_URL=http://localhost:5500
+OWNER_EMAIL=your@email.com
+OWNER_NAME=Your Name
+```
 
-2. Search for **Google Calendar API**
+Start the server:
+```bash
+npm start
+```
 
-3. Click on it → Click **Enable**
+### Step 4: Connect Google Calendar
 
----
+1. Visit `http://localhost:3000/auth/setup`
+2. Sign in with Google
+3. Grant calendar permissions
+4. You should see: **"Success! Google Calendar connected."**
 
-## Step 3: Configure OAuth Consent Screen
+### Step 5: Test Locally
 
-1. Go to **APIs & Services** → **OAuth consent screen**
+```bash
+cd frontend
+python -m http.server 5500
+# or
+npx serve -p 5500
+```
 
-2. Select **External** → Click **Create**
-
-3. Fill in the form:
-   - **App name**: `Meeting Scheduler`
-   - **User support email**: Your email
-   - **Developer contact**: Your email
-
-4. Click **Save and Continue**
-
-5. **Scopes** page:
-   - Click **Add or Remove Scopes**
-   - Find and select:
-     - `https://www.googleapis.com/auth/calendar`
-     - `https://www.googleapis.com/auth/calendar.events`
-   - Click **Update** → **Save and Continue**
-
-6. **Test users** page:
-   - Click **Add Users**
-   - Add your Gmail address
-   - Click **Save and Continue**
-
-7. Click **Back to Dashboard**
-
----
-
-## Step 4: Create OAuth Credentials
-
-1. Go to **APIs & Services** → **Credentials**
-
-2. Click **Create Credentials** → **OAuth client ID**
-
-3. Select **Web application**
-
-4. Name: `Meeting Scheduler`
-
-5. **Authorized redirect URIs** - Add these:
-   ```
-   http://localhost:3000/auth/callback
-   ```
-   (We'll add the Vercel URL later)
-
-6. Click **Create**
-
-7. **Save your credentials:**
-   - Client ID: `xxxxxx.apps.googleusercontent.com`
-   - Client Secret: `GOCSPX-xxxxxx`
+Open `http://localhost:5500` and book a meeting!
 
 ---
 
-## Step 5: Set Up Backend Locally
+## Deploy to Production
 
-1. Open terminal and navigate to backend:
-   ```bash
-   cd backend
-   ```
+### Backend (Vercel)
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+cd backend
+npm install -g vercel
+vercel login
+vercel
+```
 
-3. Create `.env` file:
-   ```bash
-   cp .env.example .env
-   ```
+Add environment variables in Vercel Dashboard:
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `REDIRECT_URI` → `https://your-app.vercel.app/auth/callback`
+- `FRONTEND_URL` → `https://your-frontend-url`
+- `OWNER_EMAIL`
+- `OWNER_NAME`
 
-4. Edit `.env` with your credentials:
-   ```env
-   GOOGLE_CLIENT_ID=your_client_id_here
-   GOOGLE_CLIENT_SECRET=your_client_secret_here
-   REDIRECT_URI=http://localhost:3000/auth/callback
-   FRONTEND_URL=http://localhost:5500
-   OWNER_EMAIL=your@email.com
-   OWNER_NAME=Your Name
-   ```
+Update Google Cloud redirect URIs to include your Vercel URL.
 
-5. Start the server:
-   ```bash
-   npm start
-   ```
+### Frontend (GitHub Pages / Vercel)
 
-6. You should see:
-   ```
-   ====================================
-     Google Meet Scheduler API
-   ====================================
-     Port: 3000
-     Connected: No
-     Setup: http://localhost:3000/auth/setup
-   ====================================
-   ```
+Update `frontend/index.html`:
+```javascript
+const API_BASE = 'https://your-backend.vercel.app';
+```
 
----
-
-## Step 6: Connect Your Google Calendar
-
-1. Open browser: `http://localhost:3000/auth/setup`
-
-2. Sign in with your Google account
-
-3. Click **Continue** (ignore "unverified app" warning - it's your own app)
-
-4. Grant calendar permissions
-
-5. You should see: **"Success! Google Calendar connected."**
-
----
-
-## Step 7: Test Locally
-
-1. Open `frontend/index.html` in your browser
-
-2. Or serve it with any static server:
-   ```bash
-   # Using Python
-   cd frontend
-   python -m http.server 5500
-
-   # Using Node.js
-   npx serve frontend -p 5500
-   ```
-
-3. Open `http://localhost:5500`
-
-4. Try booking a meeting - it will create a real Google Calendar event!
-
----
-
-## Step 8: Deploy Backend to Vercel
-
-1. Install Vercel CLI:
-   ```bash
-   npm install -g vercel
-   ```
-
-2. Login to Vercel:
-   ```bash
-   vercel login
-   ```
-
-3. Deploy backend:
-   ```bash
-   cd backend
-   vercel
-   ```
-
-4. Follow prompts:
-   - Set up and deploy? **Y**
-   - Which scope? Select your account
-   - Link to existing project? **N**
-   - Project name? `meet-scheduler-api`
-   - Directory? `./`
-
-5. Note your deployment URL: `https://meet-scheduler-api.vercel.app`
-
-6. Add environment variables in Vercel:
-   - Go to [Vercel Dashboard](https://vercel.com/dashboard)
-   - Select your project
-   - Go to **Settings** → **Environment Variables**
-   - Add each variable:
-
-   | Name | Value |
-   |------|-------|
-   | `GOOGLE_CLIENT_ID` | Your client ID |
-   | `GOOGLE_CLIENT_SECRET` | Your client secret |
-   | `REDIRECT_URI` | `https://your-project.vercel.app/auth/callback` |
-   | `FRONTEND_URL` | `https://your-frontend.vercel.app` |
-   | `OWNER_EMAIL` | Your email |
-   | `OWNER_NAME` | Your name |
-
-7. Redeploy to apply variables:
-   ```bash
-   vercel --prod
-   ```
-
----
-
-## Step 9: Update Google Cloud Redirect URI
-
-1. Go back to [Google Cloud Console](https://console.cloud.google.com/)
-
-2. Go to **APIs & Services** → **Credentials**
-
-3. Click on your OAuth client
-
-4. Add new **Authorized redirect URI**:
-   ```
-   https://your-project.vercel.app/auth/callback
-   ```
-
-5. Click **Save**
-
----
-
-## Step 10: Connect Calendar on Production
-
-1. Visit: `https://your-project.vercel.app/auth/setup`
-
-2. Sign in and grant permissions
-
-3. Your production calendar is now connected!
-
----
-
-## Step 11: Deploy Frontend
-
-1. Update `frontend/index.html`:
-   ```javascript
-   const API_BASE = 'https://your-project.vercel.app';
-   ```
-
-2. Deploy frontend:
-   ```bash
-   cd frontend
-   vercel
-   ```
-
-3. Your scheduler is now live!
+Deploy to GitHub Pages or Vercel.
 
 ---
 
@@ -298,7 +206,7 @@ const SCHEDULING_CONFIG = {
     maxDaysInAdvance: 15,      // How far ahead users can book
     minHoursNotice: 4,         // Minimum hours before appointment
     meetingDuration: 45,       // Meeting length in minutes
-    slotInterval: 45,          // Time between slot options
+    slotInterval: 45,          // Time between slots
     timezone: 'Asia/Kolkata'   // Your timezone
 };
 ```
@@ -319,7 +227,7 @@ const WORKING_HOURS = {
 
 ---
 
-## API Endpoints
+## API Reference
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -330,55 +238,73 @@ const WORKING_HOURS = {
 | `/api/config` | GET | Get scheduler config |
 | `/api/available-dates` | GET | Get bookable dates |
 | `/api/availability?date=YYYY-MM-DD` | GET | Get time slots |
-| `/api/check-slot` | POST | Verify slot available |
+| `/api/send-otp` | POST | Send OTP to email |
+| `/api/verify-otp` | POST | Verify OTP code |
 | `/api/book` | POST | Create booking |
 
 ---
 
 ## Troubleshooting
 
-### "Calendar not connected"
-Visit `/auth/setup` on your backend URL to connect Google Calendar.
-
-### "Access blocked: This app's request is invalid"
-Make sure your redirect URI in Google Console exactly matches your backend URL + `/auth/callback`.
-
-### "Token refresh failed"
-Visit `/auth/disconnect` then `/auth/setup` to reconnect.
-
-### No available dates showing
-- Check `WORKING_HOURS` configuration
-- Dates must be within `maxDaysInAdvance`
-
-### CORS errors
-Ensure `FRONTEND_URL` environment variable matches your frontend domain.
+| Issue | Solution |
+|-------|----------|
+| "Calendar not connected" | Visit `/auth/setup` to connect |
+| "Access blocked" | Check redirect URI in Google Console |
+| "Token refresh failed" | Disconnect and reconnect calendar |
+| No available dates | Check `WORKING_HOURS` config |
+| CORS errors | Ensure `FRONTEND_URL` matches your domain |
 
 ---
 
-## Customization
+## Tech Stack
 
-### Colors
-Edit CSS variables in `frontend/index.html`:
-```css
-:root {
-    --primary: #4F46E5;
-    --primary-dark: #4338CA;
-    ...
-}
-```
+- **Frontend**: Vanilla JavaScript, CSS3
+- **Backend**: Node.js, Express
+- **APIs**: Google Calendar API, Gmail API
+- **Deployment**: Vercel, GitHub Pages
+- **Icons**: Bootstrap Icons
 
-### Branding
-Update the sidebar in `frontend/index.html` with your name/logo.
+---
+
+## Screenshots
+
+### Light Mode
+![Light Mode](demo.png)
+
+### Architecture
+![Architecture](VisualDiagram.png)
+
+---
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
 ## License
 
-MIT
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
 ## Author
 
 **Himanshu Shekhar**
+
 - GitHub: [@shekharh500](https://github.com/shekharh500)
+- LinkedIn: [Himanshu Shekhar](https://linkedin.com/in/shekharh500)
+
+---
+
+<div align="center">
+
+⭐ **Star this repo if you find it useful!** ⭐
+
+</div>
