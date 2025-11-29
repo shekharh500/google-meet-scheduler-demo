@@ -18,7 +18,11 @@ A self-hosted meeting scheduler with **Google Calendar integration** and **autom
 
 ## Quick Demo
 
-Just open `index.html` in your browser - works immediately with mock data!
+**Live Demo:** [Visit the deployed scheduler](https://shekharh500.github.io/google-meet-scheduler-demo.github.io/)
+
+Or try the local demo - just open `index.html` in your browser. It works immediately with mock data!
+
+![Demo Screenshot](demo.png)
 
 ---
 
