@@ -24,6 +24,8 @@ Or try the local demo - just open `index.html` in your browser. It works immedia
 
 ![Demo Screenshot](demo.png)
 
+![Visual Diagram](VisualDiagram.png)
+
 ---
 
 ## Full Setup Guide (Real Google Calendar Integration)
