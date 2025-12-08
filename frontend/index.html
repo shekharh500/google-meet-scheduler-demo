@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schedule a Meeting</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         :root {
@@ -16,6 +15,7 @@
             --success: #059669;
             --success-light: #D1FAE5;
             --danger: #DC2626;
+            --danger-light: #FEE2E2;
             --gray-50: #F9FAFB;
             --gray-100: #F3F4F6;
             --gray-200: #E5E7EB;
@@ -53,11 +53,12 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             overflow: hidden;
             display: grid;
-            grid-template-columns: 280px 1fr 320px;
+            grid-template-columns: 280px 1fr 340px;
             min-height: 600px;
             width: 100%;
         }
 
+        /* Sidebar */
         .sidebar {
             background: var(--gray-50);
             padding: 32px 24px;
@@ -87,14 +88,14 @@
         .brand-text span { font-size: 13px; color: var(--gray-500); }
 
         .meeting-info h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-        .meeting-info p { color: var(--gray-600); font-size: 14px; margin-bottom: 24px; }
+        .meeting-info p { color: var(--gray-600); font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
 
         .meeting-details { display: flex; flex-direction: column; gap: 16px; }
         .detail-item { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--gray-600); }
         .detail-item i { font-size: 18px; color: var(--primary); width: 24px; }
 
+        /* Calendar */
         .calendar-section { padding: 32px; }
-
         .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .calendar-header h3 { font-size: 18px; font-weight: 600; }
 
@@ -108,7 +109,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.2s;
         }
+        .month-nav button:hover:not(:disabled) { background: var(--gray-50); border-color: var(--primary); }
         .month-nav button:disabled { opacity: 0.5; cursor: not-allowed; }
         .month-nav span { font-weight: 500; min-width: 140px; text-align: center; }
 
@@ -125,6 +128,7 @@
             border-radius: 8px;
             cursor: pointer;
             position: relative;
+            transition: all 0.2s;
         }
         .calendar-day:hover:not(.disabled):not(.empty) { background: var(--primary-light); }
         .calendar-day.disabled { color: var(--gray-300); cursor: not-allowed; }
@@ -148,12 +152,18 @@
             border-radius: 8px;
             font-size: 13px;
             color: var(--gray-600);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
+        /* Right Panel */
         .right-panel {
             background: var(--gray-50);
             padding: 32px 24px;
             border-left: 1px solid var(--gray-200);
+            overflow-y: auto;
+            max-height: 700px;
         }
 
         .panel-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
@@ -167,6 +177,7 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 500;
+            transition: all 0.2s;
         }
         .time-slot:hover { border-color: var(--primary); background: var(--primary-light); }
         .time-slot.selected { background: var(--primary); color: white; border-color: var(--primary); }
@@ -174,6 +185,7 @@
         .no-slots { text-align: center; padding: 32px; color: var(--gray-500); }
         .no-slots i { font-size: 32px; color: var(--gray-300); margin-bottom: 12px; display: block; }
 
+        /* Booking Form */
         .booking-form { display: none; flex-direction: column; gap: 16px; }
         .booking-form.active { display: flex; }
 
@@ -184,7 +196,9 @@
             background: var(--gray-200);
             border-radius: 6px;
             cursor: pointer;
+            transition: all 0.2s;
         }
+        .back-btn:hover { background: var(--gray-300); }
 
         .selected-datetime {
             background: white;
@@ -204,28 +218,111 @@
             border-radius: 8px;
             font-size: 14px;
             font-family: inherit;
+            transition: all 0.2s;
         }
         .form-group input:focus, .form-group textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px var(--primary-light);
         }
+        .form-group input.error { border-color: var(--danger); }
+        .form-group input.valid { border-color: var(--success); }
         .form-group textarea { min-height: 80px; resize: vertical; }
 
-        .submit-btn {
-            padding: 12px 24px;
+        .field-hint { font-size: 11px; color: var(--gray-500); }
+        .field-error { font-size: 12px; color: var(--danger); display: none; }
+        .field-error.show { display: flex; align-items: center; gap: 4px; }
+
+        /* OTP Section */
+        .otp-section { display: none; margin-top: 12px; }
+        .otp-section.active { display: block; animation: slideDown 0.3s ease; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .otp-boxes { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+        .otp-digit {
+            width: 42px; height: 48px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            border: 2px solid var(--gray-300);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .otp-digit:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px var(--primary-light); }
+        .otp-digit.filled { border-color: var(--primary); background: var(--primary-light); }
+        .otp-digit.error { border-color: var(--danger); background: var(--danger-light); }
+
+        .otp-actions { display: flex; gap: 8px; justify-content: center; }
+
+        .btn-verify-email {
+            padding: 10px 16px;
             background: var(--primary);
             color: white;
             border: none;
             border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+        .btn-verify-email:hover:not(:disabled) { background: var(--primary-dark); }
+        .btn-verify-email:disabled { background: var(--gray-400); cursor: not-allowed; }
+
+        .btn-verify-otp {
+            padding: 10px 20px;
+            background: var(--gray-800);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-verify-otp:hover:not(:disabled) { background: var(--gray-700); }
+        .btn-verify-otp:disabled { background: var(--gray-400); cursor: not-allowed; }
+
+        .btn-resend { padding: 10px 16px; background: transparent; color: var(--primary); border: 1px solid var(--primary); border-radius: 8px; font-size: 13px; cursor: pointer; }
+        .btn-resend:disabled { color: var(--gray-400); border-color: var(--gray-300); cursor: not-allowed; }
+
+        .email-verified {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--success);
             font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+            padding: 10px;
+            background: var(--success-light);
+            border-radius: 8px;
+        }
+        .email-verified.show { display: flex; }
+
+        .submit-btn {
+            padding: 14px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             margin-top: 8px;
+            transition: all 0.2s;
         }
-        .submit-btn:hover { background: var(--primary-dark); }
-        .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .submit-btn:hover:not(:disabled) { background: var(--primary-dark); }
+        .submit-btn:disabled { background: var(--gray-400); cursor: not-allowed; }
 
+        /* Success */
         .success-section { display: none; flex-direction: column; align-items: center; text-align: center; padding: 24px; }
         .success-section.active { display: flex; }
         .success-icon {
@@ -249,32 +346,17 @@
             width: 100%;
             margin-bottom: 16px;
         }
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--gray-100);
-            gap: 16px;
-        }
+        .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--gray-100); }
         .detail-row:last-child { border-bottom: none; }
-        .detail-row .label { color: var(--gray-500); font-size: 13px; min-width: 70px; }
-        .detail-row .value { font-weight: 500; font-size: 13px; text-align: right; }
+        .detail-row .label { color: var(--gray-500); font-size: 13px; }
+        .detail-row .value { font-weight: 500; font-size: 13px; }
 
-        .download-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            background: var(--gray-100);
-            color: var(--gray-700);
-            text-decoration: none;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
+        .success-buttons { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        .btn-meet { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: var(--primary); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; }
+        .btn-calendar { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: var(--gray-800); color: white; text-decoration: none; border-radius: 8px; font-weight: 500; }
+        .btn-new { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: transparent; color: var(--gray-600); border: 1px solid var(--gray-300); border-radius: 8px; cursor: pointer; font-weight: 500; }
 
-        .back-link { color: var(--primary); text-decoration: none; font-size: 14px; font-weight: 500; cursor: pointer; }
-
+        /* Loading */
         .loading { display: flex; align-items: center; justify-content: center; padding: 40px; }
         .spinner {
             width: 32px; height: 32px;
@@ -287,16 +369,18 @@
 
         .hidden { display: none !important; }
 
+        /* Responsive */
         @media (max-width: 1024px) {
             .scheduler-card { grid-template-columns: 1fr; max-width: 500px; }
             .sidebar { border-right: none; border-bottom: 1px solid var(--gray-200); }
-            .right-panel { border-left: none; border-top: 1px solid var(--gray-200); }
+            .right-panel { border-left: none; border-top: 1px solid var(--gray-200); max-height: none; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="scheduler-card">
+            <!-- Sidebar -->
             <div class="sidebar">
                 <div class="brand">
                     <div class="brand-icon"><i class="bi bi-calendar-check"></i></div>
@@ -306,16 +390,18 @@
                     </div>
                 </div>
                 <div class="meeting-info">
-                    <h2>Quick Meeting</h2>
-                    <p>Book a time slot that works for you. You'll receive a Google Meet link.</p>
+                    <h2>Consultation</h2>
+                    <p>Book a time slot that works for you. You'll receive a calendar invite with a Google Meet link.</p>
                     <div class="meeting-details">
                         <div class="detail-item"><i class="bi bi-clock"></i><span id="duration-text">45 min</span></div>
                         <div class="detail-item"><i class="bi bi-camera-video"></i><span>Google Meet</span></div>
-                        <div class="detail-item"><i class="bi bi-calendar3"></i><span id="booking-window">Up to 15 days in advance</span></div>
+                        <div class="detail-item"><i class="bi bi-calendar3"></i><span id="booking-window">Up to 15 days ahead</span></div>
+                        <div class="detail-item"><i class="bi bi-envelope-check"></i><span>Email verification required</span></div>
                     </div>
                 </div>
             </div>
 
+            <!-- Calendar -->
             <div class="calendar-section">
                 <div class="calendar-header">
                     <h3>Select a Date</h3>
@@ -336,11 +422,13 @@
                 </div>
                 <div class="timezone-info">
                     <i class="bi bi-globe2"></i>
-                    <span id="timezone-display">Loading...</span>
+                    <span id="timezone-display">Loading timezone...</span>
                 </div>
             </div>
 
+            <!-- Right Panel -->
             <div class="right-panel">
+                <!-- Time Slots -->
                 <div id="slots-section">
                     <div class="panel-title">Select a Time</div>
                     <div id="slots-container">
@@ -351,54 +439,84 @@
                     </div>
                 </div>
 
+                <!-- Booking Form -->
                 <div id="booking-section" class="booking-form">
                     <div class="form-header">
                         <button class="back-btn" id="backToSlots"><i class="bi bi-arrow-left"></i></button>
                         <span class="panel-title" style="margin-bottom: 0;">Your Details</span>
                     </div>
+
                     <div class="selected-datetime">
                         <div class="date" id="selected-date-display"></div>
                         <div class="time" id="selected-time-display"></div>
                     </div>
+
                     <form id="bookingForm">
                         <div class="form-group">
                             <label for="name">Your Name *</label>
-                            <input type="text" id="name" required placeholder="John Doe">
+                            <input type="text" id="name" required placeholder="John Doe" minlength="2">
+                            <div class="field-error" id="nameError"><i class="bi bi-exclamation-circle"></i> <span></span></div>
                         </div>
+
                         <div class="form-group">
-                            <label for="email">Email Address *</label>
-                            <input type="email" id="email" required placeholder="john@example.com">
+                            <label for="email">Business Email *</label>
+                            <input type="email" id="email" required placeholder="john@company.com">
+                            <div class="field-hint">Business email required (no Gmail, Yahoo, etc.)</div>
+                            <div class="field-error" id="emailError"><i class="bi bi-exclamation-circle"></i> <span></span></div>
+                            <button type="button" id="sendOtpBtn" class="btn-verify-email" disabled>
+                                <i class="bi bi-envelope-check"></i> Verify Email
+                            </button>
+
+                            <!-- OTP Section -->
+                            <div class="otp-section" id="otpSection">
+                                <label style="display: block; margin-bottom: 8px; font-size: 13px;">Enter Verification Code</label>
+                                <div class="otp-boxes" id="otpBoxes">
+                                    <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                                    <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                                    <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                                    <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                                    <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                                    <input type="text" class="otp-digit" maxlength="1" inputmode="numeric">
+                                </div>
+                                <div class="otp-actions">
+                                    <button type="button" id="verifyOtpBtn" class="btn-verify-otp">Verify</button>
+                                    <button type="button" id="resendOtpBtn" class="btn-resend" disabled>Resend</button>
+                                </div>
+                                <div class="field-hint" id="otpHint" style="text-align: center; margin-top: 8px;">Check your email for the code</div>
+                                <div class="field-error" id="otpError" style="justify-content: center; margin-top: 8px;"><i class="bi bi-exclamation-circle"></i> <span></span></div>
+                            </div>
+
+                            <div class="email-verified" id="emailVerified">
+                                <i class="bi bi-check-circle-fill"></i> Email verified
+                            </div>
                         </div>
+
                         <div class="form-group">
                             <label for="notes">What would you like to discuss?</label>
-                            <textarea id="notes" placeholder="Brief description..."></textarea>
+                            <textarea id="notes" placeholder="Brief description of your project or questions..."></textarea>
                         </div>
-                        <button type="submit" class="submit-btn" id="submitBtn">Confirm Booking</button>
+
+                        <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                            <i class="bi bi-check-circle"></i> Confirm Booking
+                        </button>
                     </form>
                 </div>
 
+                <!-- Success -->
                 <div id="success-section" class="success-section">
                     <div class="success-icon"><i class="bi bi-check-lg"></i></div>
                     <h3>Booking Confirmed!</h3>
-                    <p>Check your email for the calendar invite.</p>
+                    <p>A calendar invite has been sent to your email.</p>
                     <div class="success-details">
-                        <div class="detail-row">
-                            <span class="label">Date</span>
-                            <span class="value" id="success-date"></span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="label">Time</span>
-                            <span class="value" id="success-time"></span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="label">Duration</span>
-                            <span class="value" id="success-duration">45 minutes</span>
-                        </div>
+                        <div class="detail-row"><span class="label">Date</span><span class="value" id="success-date"></span></div>
+                        <div class="detail-row"><span class="label">Time</span><span class="value" id="success-time"></span></div>
+                        <div class="detail-row"><span class="label">Duration</span><span class="value" id="success-duration">45 minutes</span></div>
                     </div>
-                    <a href="#" class="download-btn" id="downloadIcs">
-                        <i class="bi bi-calendar-plus"></i> Add to Calendar
-                    </a>
-                    <a class="back-link" id="tryAgain">Book Another Meeting</a>
+                    <div class="success-buttons">
+                        <a href="#" class="btn-meet" id="meetLink" target="_blank"><i class="bi bi-camera-video"></i> Join Google Meet</a>
+                        <a href="#" class="btn-calendar" id="downloadIcs"><i class="bi bi-calendar-plus"></i> Add to Calendar</a>
+                        <button class="btn-new" id="bookAnother"><i class="bi bi-plus-circle"></i> Book Another</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -406,7 +524,7 @@
 
     <script>
         // ============================================
-        // CONFIGURATION - Update this!
+        // CONFIGURATION - Update this URL!
         // ============================================
         const API_BASE = 'http://localhost:3000'; // Your backend URL
 
@@ -417,24 +535,29 @@
         let selectedSlot = null;
         let availableDates = new Set();
         let config = { meetingDuration: 45, maxDaysInAdvance: 15 };
+        let isEmailVerified = false;
+        let verifiedEmail = null;
 
-        // Init
+        // Initialize
         async function init() {
             document.getElementById('timezone-display').textContent =
                 `Times shown in ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
+
             await loadConfig();
             await loadAvailableDates();
             renderCalendar();
             setupEventListeners();
+            setupOtpBoxes();
         }
 
         async function loadConfig() {
             try {
                 const res = await fetch(`${API_BASE}/api/config`);
                 if (res.ok) {
-                    config = await res.json();
+                    const data = await res.json();
+                    config = data;
                     document.getElementById('duration-text').textContent = `${config.meetingDuration} min`;
-                    document.getElementById('booking-window').textContent = `Up to ${config.maxDaysInAdvance} days in advance`;
+                    document.getElementById('booking-window').textContent = `Up to ${config.maxDaysInAdvance} days ahead`;
                     document.getElementById('success-duration').textContent = `${config.meetingDuration} minutes`;
                     if (config.ownerName) document.getElementById('owner-name').textContent = config.ownerName;
                 }
@@ -446,7 +569,7 @@
                 const res = await fetch(`${API_BASE}/api/available-dates?year=${currentYear}&month=${currentMonth + 1}`);
                 if (res.ok) {
                     const data = await res.json();
-                    availableDates = new Set(data.dates || []);
+                    availableDates = new Set(data.availableDates || []);
                 }
             } catch (e) { availableDates = new Set(); }
         }
@@ -509,7 +632,7 @@
                 const res = await fetch(`${API_BASE}/api/availability?date=${dateStr}`);
                 const data = await res.json();
 
-                if (!data.slots || data.slots.length === 0) {
+                if (!data.availableSlots || data.availableSlots.length === 0) {
                     container.innerHTML = '<div class="no-slots"><i class="bi bi-calendar-x"></i><p>No available times</p></div>';
                     return;
                 }
@@ -517,7 +640,7 @@
                 container.innerHTML = '<div class="time-slots"></div>';
                 const slotsDiv = container.querySelector('.time-slots');
 
-                data.slots.forEach(slot => {
+                data.availableSlots.forEach(slot => {
                     const el = document.createElement('div');
                     el.className = 'time-slot';
                     el.textContent = slot.display;
@@ -530,15 +653,16 @@
         }
 
         async function selectSlot(slot, element) {
+            // Check slot availability
             try {
                 const res = await fetch(`${API_BASE}/api/check-slot`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ start: slot.start, end: slot.end })
+                    body: JSON.stringify({ startTime: slot.start, endTime: slot.end })
                 });
                 const data = await res.json();
                 if (!data.available) {
-                    alert('Slot no longer available');
+                    alert('This slot was just taken. Please select another.');
                     loadTimeSlots(selectedDate);
                     return;
                 }
@@ -565,31 +689,211 @@
             document.getElementById('slots-section').classList.remove('hidden');
         }
 
+        // OTP Functions
+        function setupOtpBoxes() {
+            const boxes = document.querySelectorAll('.otp-digit');
+            boxes.forEach((box, i) => {
+                box.addEventListener('input', (e) => {
+                    const val = e.target.value.replace(/[^0-9]/g, '');
+                    e.target.value = val;
+                    if (val && i < boxes.length - 1) boxes[i + 1].focus();
+                    e.target.classList.toggle('filled', !!val);
+                    clearOtpError();
+                });
+                box.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !e.target.value && i > 0) boxes[i - 1].focus();
+                    if (e.key === 'Enter') document.getElementById('verifyOtpBtn').click();
+                });
+                box.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+                    text.split('').forEach((d, idx) => { if (boxes[idx]) { boxes[idx].value = d; boxes[idx].classList.add('filled'); }});
+                    if (text.length > 0) boxes[Math.min(text.length, 5)].focus();
+                });
+            });
+        }
+
+        function getOtp() {
+            return Array.from(document.querySelectorAll('.otp-digit')).map(b => b.value).join('');
+        }
+
+        function clearOtpBoxes() {
+            document.querySelectorAll('.otp-digit').forEach(b => { b.value = ''; b.classList.remove('filled', 'error'); });
+        }
+
+        function clearOtpError() {
+            document.querySelectorAll('.otp-digit').forEach(b => b.classList.remove('error'));
+            document.getElementById('otpError').classList.remove('show');
+        }
+
+        function showOtpError(msg) {
+            document.querySelectorAll('.otp-digit').forEach(b => b.classList.add('error'));
+            const err = document.getElementById('otpError');
+            err.querySelector('span').textContent = msg;
+            err.classList.add('show');
+        }
+
+        let resendTimer = null;
+
+        async function sendOtp() {
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const btn = document.getElementById('sendOtpBtn');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('otpSection').classList.add('active');
+                    document.getElementById('email').readOnly = true;
+                    btn.style.display = 'none';
+                    clearOtpBoxes();
+                    document.querySelector('.otp-digit').focus();
+                    document.getElementById('otpHint').textContent = `Code sent to ${email}`;
+
+                    // Resend countdown
+                    const resendBtn = document.getElementById('resendOtpBtn');
+                    resendBtn.disabled = true;
+                    let count = 60;
+                    resendBtn.textContent = `Resend (${count}s)`;
+                    if (resendTimer) clearInterval(resendTimer);
+                    resendTimer = setInterval(() => {
+                        count--;
+                        if (count <= 0) { clearInterval(resendTimer); resendBtn.disabled = false; resendBtn.textContent = 'Resend'; }
+                        else resendBtn.textContent = `Resend (${count}s)`;
+                    }, 1000);
+                } else {
+                    showEmailError(data.error || 'Failed to send code');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-envelope-check"></i> Verify Email';
+                }
+            } catch (e) {
+                showEmailError('Failed to send code');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-envelope-check"></i> Verify Email';
+            }
+        }
+
+        async function verifyOtp() {
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const otp = getOtp();
+            const btn = document.getElementById('verifyOtpBtn');
+
+            if (otp.length !== 6) { showOtpError('Enter all 6 digits'); return; }
+
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+
+            try {
+                const res = await fetch(`${API_BASE}/api/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    isEmailVerified = true;
+                    verifiedEmail = email;
+                    if (resendTimer) clearInterval(resendTimer);
+                    document.getElementById('otpSection').classList.remove('active');
+                    document.getElementById('emailVerified').classList.add('show');
+                    document.getElementById('email').classList.add('valid');
+                    updateSubmitButton();
+                } else {
+                    showOtpError(data.error || 'Invalid code');
+                    btn.disabled = false;
+                    btn.textContent = 'Verify';
+                }
+            } catch (e) {
+                showOtpError('Verification failed');
+                btn.disabled = false;
+                btn.textContent = 'Verify';
+            }
+        }
+
+        function showEmailError(msg) {
+            const el = document.getElementById('emailError');
+            el.querySelector('span').textContent = msg;
+            el.classList.add('show');
+            document.getElementById('email').classList.add('error');
+        }
+
+        function clearEmailError() {
+            document.getElementById('emailError').classList.remove('show');
+            document.getElementById('email').classList.remove('error');
+        }
+
+        function validateEmail() {
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const btn = document.getElementById('sendOtpBtn');
+            clearEmailError();
+
+            if (!email.includes('@') || !email.includes('.')) { btn.disabled = true; return false; }
+
+            const domain = email.split('@')[1];
+            const blocked = ['gmail.com','yahoo.com','outlook.com','hotmail.com','live.com','aol.com','icloud.com','protonmail.com'];
+            if (blocked.includes(domain)) {
+                showEmailError('Please use your business email');
+                btn.disabled = true;
+                return false;
+            }
+
+            btn.disabled = false;
+            return true;
+        }
+
+        function updateSubmitButton() {
+            const name = document.getElementById('name').value.trim();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = !(isEmailVerified && name.length >= 2);
+        }
+
         async function submitBooking(e) {
             e.preventDefault();
             const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
+            const email = document.getElementById('email').value.trim().toLowerCase();
             const notes = document.getElementById('notes').value.trim();
 
-            if (!name || !email) return alert('Please fill required fields');
+            if (!name || name.length < 2) { alert('Please enter your name'); return; }
+            if (!isEmailVerified || verifiedEmail !== email) { alert('Please verify your email'); return; }
 
             const btn = document.getElementById('submitBtn');
             btn.disabled = true;
-            btn.textContent = 'Booking...';
+            btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;margin-right:8px;"></div> Booking...';
 
             try {
                 const res = await fetch(`${API_BASE}/api/book`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, notes, start: selectedSlot.start, end: selectedSlot.end })
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        startTime: selectedSlot.start,
+                        endTime: selectedSlot.end,
+                        description: notes
+                    })
                 });
                 const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
-                showSuccess(data);
+
+                if (data.success) {
+                    showSuccess(data);
+                } else {
+                    alert(data.error || 'Booking failed');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm Booking';
+                }
             } catch (e) {
-                alert(e.message || 'Booking failed');
+                alert('Booking failed. Please try again.');
                 btn.disabled = false;
-                btn.textContent = 'Confirm Booking';
+                btn.innerHTML = '<i class="bi bi-check-circle"></i> Confirm Booking';
             }
         }
 
@@ -599,12 +903,18 @@
 
             const dateObj = new Date(selectedDate + 'T00:00:00');
             document.getElementById('success-date').textContent =
-                dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                dateObj.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
             document.getElementById('success-time').textContent = selectedSlot.display;
 
-            if (data.icsContent) {
-                const blob = new Blob([data.icsContent], { type: 'text/calendar' });
-                document.getElementById('downloadIcs').href = URL.createObjectURL(blob);
+            if (data.meetLink) {
+                document.getElementById('meetLink').href = data.meetLink;
+                document.getElementById('meetLink').style.display = 'flex';
+            } else {
+                document.getElementById('meetLink').style.display = 'none';
+            }
+
+            if (data.icsDownload) {
+                document.getElementById('downloadIcs').href = data.icsDownload;
                 document.getElementById('downloadIcs').download = 'meeting.ics';
             }
         }
@@ -612,11 +922,25 @@
         function reset() {
             selectedDate = null;
             selectedSlot = null;
+            isEmailVerified = false;
+            verifiedEmail = null;
+
             document.getElementById('success-section').classList.remove('active');
+            document.getElementById('booking-section').classList.remove('active');
             document.getElementById('slots-section').classList.remove('hidden');
+
             document.getElementById('bookingForm').reset();
-            document.getElementById('submitBtn').disabled = false;
-            document.getElementById('submitBtn').textContent = 'Confirm Booking';
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').innerHTML = '<i class="bi bi-check-circle"></i> Confirm Booking';
+            document.getElementById('sendOtpBtn').style.display = 'flex';
+            document.getElementById('sendOtpBtn').disabled = true;
+            document.getElementById('sendOtpBtn').innerHTML = '<i class="bi bi-envelope-check"></i> Verify Email';
+            document.getElementById('otpSection').classList.remove('active');
+            document.getElementById('emailVerified').classList.remove('show');
+            document.getElementById('email').readOnly = false;
+            document.getElementById('email').classList.remove('valid', 'error');
+            clearOtpBoxes();
+
             document.getElementById('slots-container').innerHTML = '<div class="no-slots"><i class="bi bi-calendar2"></i><p>Select a date</p></div>';
             renderCalendar();
         }
@@ -634,9 +958,31 @@
                 await loadAvailableDates();
                 renderCalendar();
             });
+
             document.getElementById('backToSlots').addEventListener('click', hideBookingForm);
             document.getElementById('bookingForm').addEventListener('submit', submitBooking);
-            document.getElementById('tryAgain').addEventListener('click', reset);
+            document.getElementById('bookAnother').addEventListener('click', reset);
+
+            document.getElementById('email').addEventListener('input', () => {
+                validateEmail();
+                if (isEmailVerified) {
+                    isEmailVerified = false;
+                    verifiedEmail = null;
+                    document.getElementById('emailVerified').classList.remove('show');
+                    document.getElementById('otpSection').classList.remove('active');
+                    document.getElementById('sendOtpBtn').style.display = 'flex';
+                    document.getElementById('email').readOnly = false;
+                    document.getElementById('email').classList.remove('valid');
+                }
+                updateSubmitButton();
+            });
+            document.getElementById('email').addEventListener('blur', validateEmail);
+
+            document.getElementById('name').addEventListener('input', updateSubmitButton);
+
+            document.getElementById('sendOtpBtn').addEventListener('click', sendOtp);
+            document.getElementById('verifyOtpBtn').addEventListener('click', verifyOtp);
+            document.getElementById('resendOtpBtn').addEventListener('click', sendOtp);
         }
 
         document.addEventListener('DOMContentLoaded', init);
