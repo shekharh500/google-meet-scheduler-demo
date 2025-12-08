@@ -10,20 +10,23 @@ A self-hosted meeting scheduler with Google Calendar integration and automatic G
 google-meet-scheduler-demo/
 ├── index.html              # Demo only (try UI without backend)
 ├── frontend/
-│   └── index.html          # Production frontend (USE THIS)
+│   └── index.html          # Production frontend (USE THIS FOR DEPLOYMENT)
 ├── backend/
-│   ├── server.js           # Backend API (USE THIS)
+│   ├── server.js           # Backend API
 │   ├── package.json
 │   ├── .env.example        # Environment template
 │   └── vercel.json         # Vercel config
 └── README.md
 ```
 
-| File | Purpose | Use For |
-|------|---------|---------|
-| `index.html` (root) | Demo - simulated booking, OTP: `123456` | Testing UI only |
-| `frontend/index.html` | **Production frontend** | **Your live site** |
-| `backend/` | **Production backend API** | **Your Vercel API** |
+### Understanding the Two `index.html` Files
+
+| File | What It Does | When to Use |
+|------|--------------|-------------|
+| `index.html` (root) | **Demo version** - Simulated booking with fake OTP `123456`. No backend needed. | Just to try the UI |
+| `frontend/index.html` | **Production version** - Connects to real backend API, sends real OTPs, creates real meetings | **For your live site** |
+
+> **Important:** Before deployment, you'll delete the demo `index.html` and move `frontend/index.html` to the root folder. See [Step 5.1](#51-move-production-frontend-to-root-folder) for instructions.
 
 ---
 
@@ -258,11 +261,55 @@ https://meet-scheduler-api-xxxxx.vercel.app
 
 ---
 
-## Step 5: Deploy Frontend to Vercel (3 minutes)
+## Step 5: Prepare Frontend for Deployment
 
-### 5.1 Update Frontend API URL
+### 5.1 Move Production Frontend to Root Folder
 
-Edit `frontend/index.html`, find line ~529:
+The `frontend/index.html` is your production file. For deployment (GitHub Pages, Vercel, Netlify), it needs to be in the root folder.
+
+#### Option A: Using Terminal (Recommended)
+
+```bash
+# Navigate to project root
+cd google-meet-scheduler-demo
+
+# Delete the demo index.html from root
+rm index.html
+
+# Move production frontend to root
+mv frontend/index.html ./index.html
+
+# Remove empty frontend folder
+rm -r frontend
+```
+
+#### Option B: Manual Steps (Using File Explorer/Finder)
+
+1. Open the `google-meet-scheduler-demo` folder
+2. **Delete** the `index.html` file in the main folder (this is just a demo)
+3. Open the `frontend` folder
+4. **Cut/Move** the `index.html` file from `frontend` folder
+5. **Paste** it in the main `google-meet-scheduler-demo` folder
+6. **Delete** the empty `frontend` folder (optional)
+
+#### After Moving - Your Folder Structure Should Look Like:
+
+```
+google-meet-scheduler-demo/
+├── index.html          ← Production frontend (moved from frontend/)
+├── backend/
+│   ├── server.js
+│   ├── package.json
+│   ├── .env.example
+│   └── vercel.json
+└── README.md
+```
+
+---
+
+### 5.2 Update Frontend API URL
+
+Edit `index.html` (now in root folder), find line ~529:
 
 ```javascript
 // BEFORE
@@ -272,10 +319,11 @@ const API_BASE = 'http://localhost:3000';
 const API_BASE = 'https://meet-scheduler-api-xxxxx.vercel.app';
 ```
 
-### 5.2 Deploy Frontend
+### 5.3 Deploy Frontend to Vercel
 
 ```bash
-cd frontend
+# Make sure you're in the root folder (where index.html now is)
+cd google-meet-scheduler-demo
 vercel
 ```
 
@@ -286,11 +334,25 @@ You'll get a URL like:
 https://meet-scheduler-xxxxx.vercel.app
 ```
 
-### 5.3 Update Backend FRONTEND_URL
+### 5.4 Update Backend FRONTEND_URL
 
 1. Go to Vercel Dashboard → Backend project → Settings → Environment Variables
 2. Update `FRONTEND_URL` to your frontend URL
 3. Redeploy backend
+
+---
+
+### Alternative: Deploy to GitHub Pages (Free)
+
+If you prefer GitHub Pages instead of Vercel for frontend:
+
+1. Push your code to GitHub
+2. Go to your repo → **Settings** → **Pages**
+3. Under "Source", select **main** branch
+4. Click **Save**
+5. Your site will be live at: `https://YOUR-USERNAME.github.io/google-meet-scheduler-demo/`
+
+> **Note:** Backend still needs to be on Vercel (GitHub Pages only hosts static files)
 
 ---
 
