@@ -92,33 +92,37 @@ google-meet-scheduler-demo/
 
 ### Step 2: Deploy Backend to Vercel (5 min)
 
-Open Terminal and navigate to the backend folder:
+#### Option A: Via Vercel Dashboard (Recommended)
+
+1. Fork this repo on GitHub
+2. Go to [vercel.com](https://vercel.com) → **Add New Project**
+3. Import your forked repository
+4. **Important:** Set Root Directory to `backend`
+5. Click **Deploy**
+6. After deployment, go to **Settings → Environment Variables** and add:
+
+| Variable | Value |
+|----------|-------|
+| `GOOGLE_CLIENT_ID` | your_client_id |
+| `GOOGLE_CLIENT_SECRET` | your_client_secret |
+| `REDIRECT_URI` | `https://your-backend.vercel.app/auth/callback` |
+| `OWNER_EMAIL` | your@email.com |
+| `OWNER_NAME` | Your Name |
+
+7. **Redeploy** after adding variables
+
+#### Option B: Via CLI
 
 ```bash
-# If you downloaded/cloned to Downloads folder:
 cd ~/Downloads/google-meet-scheduler-demo/backend
-
-# Or if you're already in the project folder:
-cd backend
-```
-
-Then deploy:
-
-```bash
 npm install -g vercel
 vercel login
 vercel
 ```
 
-After deployment, add environment variables in **Vercel Dashboard → Settings → Environment Variables**:
+Then add environment variables in Vercel Dashboard as shown above.
 
-```
-GOOGLE_CLIENT_ID = your_client_id
-GOOGLE_CLIENT_SECRET = your_client_secret
-REDIRECT_URI = https://your-backend.vercel.app/auth/callback
-OWNER_EMAIL = your@email.com
-OWNER_NAME = Your Name
-```
+---
 
 **Add your Vercel URL to Google Cloud:**
 - Go to Google Cloud → Credentials → Your OAuth client
@@ -141,22 +145,33 @@ OWNER_NAME = Your Name
 
 ---
 
-### Step 4: Deploy Frontend to GitHub Pages (5 min)
+### Step 4: Deploy Frontend (5 min)
 
 1. Edit `frontend/index.html`:
    - Line 548: Change `API_BASE` to your backend URL
    - Customize text (lines 21, 405, 410, 412) - optional
 
-2. Deploy to GitHub Pages:
-   - Create a new GitHub repository
-   - Upload `frontend/index.html` (rename to `index.html` in repo root)
-   - Go to Settings → Pages → Source: Deploy from branch → `main` → Save
-   - Your URL will be: `https://yourusername.github.io/repo-name`
+#### Option A: Via Vercel Dashboard (Recommended)
 
-3. **Important:** Add `FRONTEND_URL` to backend:
-   - Vercel Dashboard → Backend project → Settings → Environment Variables
-   - Add: `FRONTEND_URL` = `https://yourusername.github.io/repo-name`
-   - Redeploy backend
+1. Go to [vercel.com](https://vercel.com) → **Add New Project**
+2. Import the same forked repository
+3. **Important:** Set Root Directory to `frontend`
+4. Click **Deploy**
+5. Your URL will be: `https://your-frontend.vercel.app`
+
+#### Option B: Via GitHub Pages
+
+1. Create a new GitHub repository
+2. Upload `frontend/index.html` (rename to `index.html` in repo root)
+3. Go to Settings → Pages → Source: Deploy from branch → `main` → Save
+4. Your URL will be: `https://yourusername.github.io/repo-name`
+
+---
+
+**Important:** Add `FRONTEND_URL` to backend:
+- Vercel Dashboard → Backend project → Settings → Environment Variables
+- Add: `FRONTEND_URL` = your frontend URL (from Option A or B above)
+- Redeploy backend
 
 **Done!** Your scheduler is live.
 
@@ -203,18 +218,16 @@ If you see `401 Unauthorized` or `net::ERR_FAILED 401`:
 
 If you see `404: NOT_FOUND` when visiting `/auth/setup`:
 
-1. You deployed the **wrong folder**
-2. Navigate to the backend folder and redeploy:
+1. You deployed the **wrong folder** (root instead of backend)
+2. **Fix via Vercel Dashboard:**
+   - Go to your project → Settings → General
+   - Change **Root Directory** to `backend`
+   - Redeploy
+3. **Or fix via CLI:**
    ```bash
-   # Use the full path to your backend folder
    cd ~/Downloads/google-meet-scheduler-demo/backend
-
-   # Or drag the backend folder into Terminal, then:
    vercel --prod
    ```
-3. Check Vercel Dashboard → Deployments for build errors
-
-**Tip for Mac users:** You can drag the `backend` folder into Terminal to get the full path automatically.
 
 ### Other Issues
 
