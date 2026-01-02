@@ -115,7 +115,7 @@ OWNER_NAME = Your Name
 
 ---
 
-### Step 2.5: Connect Google Calendar (REQUIRED!)
+### Step 3: Connect Google Calendar (REQUIRED!)
 
 ⚠️ **Without this step, your scheduler won't work (401 error)**
 
@@ -130,7 +130,7 @@ OWNER_NAME = Your Name
 
 ---
 
-### Step 3: Deploy Frontend (5 min)
+### Step 4: Deploy Frontend (5 min)
 
 1. Edit `frontend/index.html`:
    - Line 548: Change `API_BASE` to your backend URL
