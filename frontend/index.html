@@ -1,8 +1,20 @@
 <!DOCTYPE html>
+<!--
+╔═══════════════════════════════════════════════════════════════════════════╗
+║  CUSTOMIZE THIS FILE - Search for "CHANGE:" to find all editable parts   ║
+╠═══════════════════════════════════════════════════════════════════════════╣
+║  Line 18  : Page title (browser tab)                                      ║
+║  Line 402 : Subtitle text ("Schedule a Meeting")                          ║
+║  Line 407 : Meeting type ("Consultation")                                 ║
+║  Line 409 : Description text                                              ║
+║  Line 545 : API_BASE - Your backend URL  ⚠️  REQUIRED                     ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CHANGE: Page title shown in browser tab -->
     <title>Schedule a Meeting</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -385,12 +397,15 @@
                 <div class="brand">
                     <div class="brand-icon"><i class="bi bi-calendar-check"></i></div>
                     <div class="brand-text">
-                        <h1 id="owner-name">Your Name</h1>
+                        <h1 id="owner-name">Your Name</h1><!-- Auto-filled from backend OWNER_NAME -->
+                        <!-- CHANGE: Subtitle text below your name -->
                         <span>Schedule a Meeting</span>
                     </div>
                 </div>
                 <div class="meeting-info">
+                    <!-- CHANGE: Meeting type heading -->
                     <h2>Consultation</h2>
+                    <!-- CHANGE: Description text -->
                     <p>Book a time slot that works for you. You'll receive a calendar invite with a Google Meet link.</p>
                     <div class="meeting-details">
                         <div class="detail-item"><i class="bi bi-clock"></i><span id="duration-text">45 min</span></div>
@@ -526,7 +541,8 @@
         // ============================================
         // CONFIGURATION - Update this URL!
         // ============================================
-        const API_BASE = 'http://localhost:3000'; // Your backend URL
+        // ⚠️ CHANGE: Set this to your Vercel backend URL (e.g., 'https://your-app.vercel.app')
+        const API_BASE = 'http://localhost:3000';
 
         // State
         let currentMonth = new Date().getMonth();
