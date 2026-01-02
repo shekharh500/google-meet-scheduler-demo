@@ -99,17 +99,18 @@ google-meet-scheduler-demo/
 3. Import your forked repository
 4. **Important:** Set Root Directory to `backend`
 5. Click **Deploy**
-6. After deployment, go to **Settings → Environment Variables** and add:
+6. **Copy your backend URL** (shown after deployment, e.g., `https://your-project-name.vercel.app`)
+7. Go to **Settings → Environment Variables** and add:
 
 | Variable | Value |
 |----------|-------|
 | `GOOGLE_CLIENT_ID` | your_client_id |
 | `GOOGLE_CLIENT_SECRET` | your_client_secret |
-| `REDIRECT_URI` | `https://your-backend.vercel.app/auth/callback` |
+| `REDIRECT_URI` | `https://YOUR-BACKEND-URL/auth/callback` |
 | `OWNER_EMAIL` | your@email.com |
 | `OWNER_NAME` | Your Name |
 
-7. **Redeploy** after adding variables
+8. **Redeploy** after adding variables
 
 #### Option B: Via CLI
 
@@ -124,9 +125,9 @@ Then add environment variables in Vercel Dashboard as shown above.
 
 ---
 
-**Add your Vercel URL to Google Cloud:**
+**Add your backend URL to Google Cloud:**
 - Go to Google Cloud → Credentials → Your OAuth client
-- Add redirect URI: `https://your-backend.vercel.app/auth/callback`
+- Add redirect URI: `https://YOUR-BACKEND-URL/auth/callback` (use URL from step 6)
 
 ---
 
@@ -134,7 +135,7 @@ Then add environment variables in Vercel Dashboard as shown above.
 
 ⚠️ **Without this step, your scheduler won't work (401 error)**
 
-1. Visit: `https://your-backend.vercel.app/auth/setup`
+1. Visit: `https://YOUR-BACKEND-URL/auth/setup` (use your backend URL from Step 2)
 2. Sign in with Google and grant permissions
 3. You'll see a success page with a JSON token
 4. **Copy the entire token** (including `{` and `}`)
@@ -148,7 +149,7 @@ Then add environment variables in Vercel Dashboard as shown above.
 ### Step 4: Deploy Frontend (5 min)
 
 1. Edit `frontend/index.html`:
-   - Line 548: Change `API_BASE` to your backend URL
+   - Line 548: Change `API_BASE` to your backend URL (from Step 2)
    - Customize text (lines 21, 405, 410, 412) - optional
 
 #### Option A: Via Vercel Dashboard (Recommended)
@@ -207,7 +208,7 @@ If you see "blocked by CORS policy":
 If you see `401 Unauthorized` or `net::ERR_FAILED 401`:
 
 1. Your Google Calendar is **not connected**
-2. Visit: `https://your-backend.vercel.app/auth/setup`
+2. Visit: `https://YOUR-BACKEND-URL/auth/setup`
 3. Sign in with Google
 4. Copy the token shown
 5. Add to Vercel: `GOOGLE_TOKENS` = paste token
