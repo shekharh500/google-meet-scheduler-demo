@@ -113,12 +113,22 @@ OWNER_NAME = Your Name
 - Go to Google Cloud → Credentials → Your OAuth client
 - Add redirect URI: `https://your-backend.vercel.app/auth/callback`
 
-**Connect your Google Calendar:**
-1. Visit `https://your-backend.vercel.app/auth/setup`
-2. Sign in with Google
-3. Copy the token shown
-4. In Vercel: Add `GOOGLE_TOKENS` = paste the token
-5. Redeploy backend
+---
+
+### Step 2.5: Connect Google Calendar (REQUIRED!)
+
+⚠️ **Without this step, your scheduler won't work (401 error)**
+
+1. Visit: `https://your-backend.vercel.app/auth/setup`
+2. Sign in with Google and grant permissions
+3. You'll see a success page with a JSON token
+4. **Copy the entire token** (including `{` and `}`)
+5. Go to Vercel Dashboard → Your backend project → Settings → Environment Variables
+6. Add new variable: `GOOGLE_TOKENS` = paste the token
+7. Click **Save**
+8. Go to Deployments → Click ⋮ → **Redeploy**
+
+---
 
 ### Step 3: Deploy Frontend (5 min)
 
@@ -165,6 +175,18 @@ If you see "blocked by CORS policy":
 1. Go to Vercel Dashboard → Backend project → Settings → Environment Variables
 2. Add: `FRONTEND_URL` = your exact frontend URL (e.g., `https://yourusername.github.io`)
 3. Save and Redeploy
+
+### 401 Unauthorized Error
+
+If you see `401 Unauthorized` or `net::ERR_FAILED 401`:
+
+1. Your Google Calendar is **not connected**
+2. Visit: `https://your-backend.vercel.app/auth/setup`
+3. Sign in with Google
+4. Copy the token shown
+5. Add to Vercel: `GOOGLE_TOKENS` = paste token
+6. Add to Vercel: `FRONTEND_URL` = your frontend URL
+7. Redeploy backend
 
 ### Other Issues
 
