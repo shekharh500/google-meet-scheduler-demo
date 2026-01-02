@@ -2,6 +2,8 @@
 
 A free, open-source meeting scheduler with Google Calendar integration.
 
+![Demo](demo.gif)
+
 ---
 
 ## Try the Demo First
