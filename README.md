@@ -92,8 +92,19 @@ google-meet-scheduler-demo/
 
 ### Step 2: Deploy Backend to Vercel (5 min)
 
+Open Terminal and navigate to the backend folder:
+
 ```bash
+# If you downloaded/cloned to Downloads folder:
+cd ~/Downloads/google-meet-scheduler-demo/backend
+
+# Or if you're already in the project folder:
 cd backend
+```
+
+Then deploy:
+
+```bash
 npm install -g vercel
 vercel login
 vercel
@@ -130,21 +141,21 @@ OWNER_NAME = Your Name
 
 ---
 
-### Step 4: Deploy Frontend (5 min)
+### Step 4: Deploy Frontend to GitHub Pages (5 min)
 
 1. Edit `frontend/index.html`:
    - Line 548: Change `API_BASE` to your backend URL
    - Customize text (lines 21, 405, 410, 412) - optional
 
-2. Deploy:
-   ```bash
-   cd frontend
-   vercel
-   ```
+2. Deploy to GitHub Pages:
+   - Create a new GitHub repository
+   - Upload `frontend/index.html` (rename to `index.html` in repo root)
+   - Go to Settings → Pages → Source: Deploy from branch → `main` → Save
+   - Your URL will be: `https://yourusername.github.io/repo-name`
 
 3. **Important:** Add `FRONTEND_URL` to backend:
    - Vercel Dashboard → Backend project → Settings → Environment Variables
-   - Add: `FRONTEND_URL` = `https://your-frontend.vercel.app`
+   - Add: `FRONTEND_URL` = `https://yourusername.github.io/repo-name`
    - Redeploy backend
 
 **Done!** Your scheduler is live.
@@ -187,6 +198,23 @@ If you see `401 Unauthorized` or `net::ERR_FAILED 401`:
 5. Add to Vercel: `GOOGLE_TOKENS` = paste token
 6. Add to Vercel: `FRONTEND_URL` = your frontend URL
 7. Redeploy backend
+
+### 404 Not Found on /auth/setup
+
+If you see `404: NOT_FOUND` when visiting `/auth/setup`:
+
+1. You deployed the **wrong folder**
+2. Navigate to the backend folder and redeploy:
+   ```bash
+   # Use the full path to your backend folder
+   cd ~/Downloads/google-meet-scheduler-demo/backend
+
+   # Or drag the backend folder into Terminal, then:
+   vercel --prod
+   ```
+3. Check Vercel Dashboard → Deployments for build errors
+
+**Tip for Mac users:** You can drag the `backend` folder into Terminal to get the full path automatically.
 
 ### Other Issues
 
