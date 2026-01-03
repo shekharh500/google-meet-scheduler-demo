@@ -163,7 +163,7 @@ Use this checklist to make sure you didn't miss anything:
 #### Option B: Via CLI
 
 ```bash
-cd ~/Downloads/google-meet-scheduler-demo/backend
+cd ~/google-meet-scheduler-demo/backend
 npm install -g vercel
 vercel login
 vercel
