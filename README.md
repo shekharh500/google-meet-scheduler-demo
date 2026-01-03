@@ -4,6 +4,28 @@ A free, open-source meeting scheduler with Google Calendar integration.
 
 ![Demo](demo.gif)
 
+## Features
+
+- **Auto Google Meet links** - Every booking gets a unique Meet link
+- **Real-time availability** - Shows only available slots from your Google Calendar
+- **Email verification** - OTP verification prevents spam bookings
+- **Calendar invites** - Sends `.ics` file to both parties
+- **Business email filter** - Blocks Gmail, Yahoo, etc. (optional)
+- **Fully customizable** - Working hours, timezone, meeting duration
+- **Mobile responsive** - Works on all devices
+- **No database needed** - Uses Google Calendar as the backend
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| Frontend | HTML, CSS, JavaScript (no framework) |
+| Backend | Node.js + Express |
+| Hosting | Vercel (serverless) |
+| Calendar | Google Calendar API |
+| Email | Gmail API |
+| Auth | OAuth 2.0 |
+
 ---
 
 ## Try the Demo First
@@ -29,6 +51,12 @@ google-meet-scheduler-demo/
 │   └── vercel.json         ← Vercel config
 └── README.md
 ```
+
+---
+
+## How It Works
+
+![Architecture](VisualDiagram.png)
 
 ---
 
@@ -289,6 +317,32 @@ Also hide the OTP hint - find line ~482 and change:
 In the `/api/book` route (around line 577), remove or comment out the OTP verification check.
 
 After changes, redeploy both frontend and backend.
+
+---
+
+## Quick Start Checklist
+
+Use this checklist to make sure you didn't miss anything:
+
+- [ ] Fork the repository
+- [ ] Enable Google Calendar API & Gmail API
+- [ ] Create OAuth credentials in Google Cloud
+- [ ] Deploy backend to Vercel (Root Directory: `backend`)
+- [ ] Add environment variables to Vercel
+- [ ] Add Vercel redirect URI to Google Cloud
+- [ ] Visit `/auth/setup` and connect Google Calendar
+- [ ] Add `GOOGLE_TOKENS` to Vercel
+- [ ] Edit `frontend/index.html` line 548 with backend URL
+- [ ] Deploy frontend to Vercel (Root Directory: `frontend`)
+- [ ] Add `FRONTEND_URL` to backend environment variables
+- [ ] Redeploy backend
+- [ ] Test your scheduler!
+
+---
+
+## License
+
+MIT License - Free to use for personal and commercial projects.
 
 ---
 
