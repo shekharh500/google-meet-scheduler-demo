@@ -96,6 +96,26 @@ google-meet-scheduler-demo/
 
 ---
 
+## Quick Start Checklist
+
+Use this checklist to make sure you didn't miss anything:
+
+- [ ] Fork the repository
+- [ ] Enable Google Calendar API & Gmail API
+- [ ] Create OAuth credentials in Google Cloud
+- [ ] Deploy backend to Vercel (Root Directory: `backend`)
+- [ ] Add environment variables to Vercel
+- [ ] Add Vercel redirect URI to Google Cloud
+- [ ] Visit `/auth/setup` and connect Google Calendar
+- [ ] Add `GOOGLE_TOKENS` to Vercel
+- [ ] Edit `frontend/index.html` line 548 with backend URL
+- [ ] Deploy frontend to Vercel (Root Directory: `frontend`)
+- [ ] Add `FRONTEND_URL` to backend environment variables
+- [ ] Redeploy backend
+- [ ] Test your scheduler!
+
+---
+
 ## Deployment Guide (20 minutes)
 
 ### Step 1: Get Google Credentials (10 min)
@@ -320,25 +340,6 @@ After changes, redeploy both frontend and backend.
 
 ---
 
-## Quick Start Checklist
-
-Use this checklist to make sure you didn't miss anything:
-
-- [ ] Fork the repository
-- [ ] Enable Google Calendar API & Gmail API
-- [ ] Create OAuth credentials in Google Cloud
-- [ ] Deploy backend to Vercel (Root Directory: `backend`)
-- [ ] Add environment variables to Vercel
-- [ ] Add Vercel redirect URI to Google Cloud
-- [ ] Visit `/auth/setup` and connect Google Calendar
-- [ ] Add `GOOGLE_TOKENS` to Vercel
-- [ ] Edit `frontend/index.html` line 548 with backend URL
-- [ ] Deploy frontend to Vercel (Root Directory: `frontend`)
-- [ ] Add `FRONTEND_URL` to backend environment variables
-- [ ] Redeploy backend
-- [ ] Test your scheduler!
-
----
 
 ## License
 
