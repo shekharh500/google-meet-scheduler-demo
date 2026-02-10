@@ -1571,6 +1571,34 @@
         let isEmailVerified = false;
         let bookedEmails = new Set(); // Track booked emails for demo
         let selectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        let currentBooking = null; // Current booking for cancel feature
+
+        // Demo bookings storage (localStorage)
+        function getDemoBookings() {
+            try {
+                return JSON.parse(localStorage.getItem('demo-bookings') || '[]');
+            } catch { return []; }
+        }
+
+        function saveDemoBooking(booking) {
+            const bookings = getDemoBookings();
+            bookings.push(booking);
+            localStorage.setItem('demo-bookings', JSON.stringify(bookings));
+            return booking;
+        }
+
+        function removeDemoBooking(meetingId) {
+            const bookings = getDemoBookings().filter(b => b.meetingId !== meetingId);
+            localStorage.setItem('demo-bookings', JSON.stringify(bookings));
+        }
+
+        // Get timezone abbreviation
+        function getTimezoneAbbr() {
+            return new Date().toLocaleTimeString('en-US', {
+                timeZoneName: 'short',
+                timeZone: selectedTimezone
+            }).split(' ').pop();
+        }
 
         // DOM Elements
         const emailInput = document.getElementById('email');
@@ -1614,6 +1642,10 @@
                 selector.classList.remove('open');
                 search.value = '';
                 renderList();
+                // Refresh time slots if a date is selected
+                if (selectedDate) {
+                    showTimeSlots(selectedDate);
+                }
             }
 
             // Render the timezone list
@@ -1978,6 +2010,7 @@
         function showTimeSlots(dateStr) {
             const container = document.getElementById('slots-container');
             const slots = getTimeSlots(dateStr);
+            const tzAbbr = getTimezoneAbbr();
 
             if (slots.length === 0) {
                 container.innerHTML = `
@@ -1995,7 +2028,7 @@
             slots.forEach(slot => {
                 const slotEl = document.createElement('div');
                 slotEl.className = 'time-slot';
-                slotEl.textContent = slot.display;
+                slotEl.textContent = `${slot.display} ${tzAbbr}`;
                 slotEl.addEventListener('click', () => selectSlot(slot, slotEl));
                 slotsDiv.appendChild(slotEl);
             });
@@ -2015,9 +2048,10 @@
             document.getElementById('booking-section').classList.add('active');
 
             const dateObj = new Date(selectedDate + 'T00:00:00');
+            const tzAbbr = getTimezoneAbbr();
             document.getElementById('selected-date-display').textContent =
                 dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            document.getElementById('selected-time-display').textContent = selectedSlot.display;
+            document.getElementById('selected-time-display').textContent = `${selectedSlot.display} ${tzAbbr}`;
         }
 
         // Hide booking form
@@ -2094,10 +2128,25 @@
             document.getElementById('success-section').classList.add('active');
 
             const dateObj = new Date(selectedDate + 'T00:00:00');
+            const meetingId = generateMeetingId();
+            const tzAbbr = getTimezoneAbbr();
+
+            // Save booking to storage
+            currentBooking = {
+                meetingId: meetingId,
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim().toLowerCase(),
+                date: selectedDate,
+                time: selectedSlot.display,
+                timezone: selectedTimezone,
+                createdAt: new Date().toISOString()
+            };
+            saveDemoBooking(currentBooking);
+
             document.getElementById('success-date').textContent =
                 dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            document.getElementById('success-time').textContent = selectedSlot.display;
-            document.getElementById('success-id').textContent = generateMeetingId();
+            document.getElementById('success-time').textContent = `${selectedSlot.display} ${tzAbbr}`;
+            document.getElementById('success-id').textContent = meetingId;
 
             launchConfetti();
         }
@@ -2107,6 +2156,57 @@
             selectedDate = null;
             selectedSlot = null;
             isEmailVerified = false;
+            currentBooking = null;
+
+            // Restore success section HTML (in case it was modified by cancel)
+            document.getElementById('success-section').innerHTML = `
+                <div class="success-icon">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+                <h3>Booking Confirmed!</h3>
+                <p>You'll receive a calendar invite at your email.</p>
+                <div class="success-details">
+                    <div class="detail-row">
+                        <span class="label">Date</span>
+                        <span class="value" id="success-date"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Time</span>
+                        <span class="value" id="success-time"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Duration</span>
+                        <span class="value">45 minutes</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="label">Meeting ID</span>
+                        <span class="value" id="success-id"></span>
+                    </div>
+                </div>
+                <div class="demo-note">
+                    <i class="bi bi-info-circle"></i>
+                    <span>This is a demo. No actual booking was made.</span>
+                </div>
+                <div class="action-buttons">
+                    <a href="#" class="action-btn primary" id="joinMeetBtn">
+                        <i class="bi bi-camera-video"></i> Join Google Meet (Demo)
+                    </a>
+                    <button class="action-btn secondary" id="tryAgain">
+                        <i class="bi bi-plus-circle"></i> Book Another Meeting
+                    </button>
+                    <button class="action-btn danger" id="cancelBookingBtn">
+                        <i class="bi bi-x-circle"></i> Cancel Booking
+                    </button>
+                </div>
+            `;
+
+            // Re-attach event listeners for dynamically restored buttons
+            document.getElementById('joinMeetBtn').addEventListener('click', (e) => {
+                e.preventDefault();
+                showToast('This is a demo. In production, this would open your Google Meet link!', 'info');
+            });
+            document.getElementById('tryAgain').addEventListener('click', resetBooking);
+            attachCancelHandler();
 
             document.getElementById('success-section').classList.remove('active');
             document.getElementById('slots-section').classList.remove('hidden');
@@ -2142,6 +2242,50 @@
             `;
 
             renderCalendar();
+        }
+
+        // Attach cancel handler (separated for reuse)
+        function attachCancelHandler() {
+            document.getElementById('cancelBookingBtn').addEventListener('click', async () => {
+                const confirmed = await showConfirm(
+                    'Cancel Booking?',
+                    'This will remove the meeting from your calendar. This action cannot be undone.',
+                    'Yes, Cancel',
+                    'Keep It'
+                );
+
+                if (confirmed) {
+                    const cancelBtn = document.getElementById('cancelBookingBtn');
+                    cancelBtn.innerHTML = '<div class="spinner"></div> Cancelling...';
+                    cancelBtn.disabled = true;
+
+                    setTimeout(() => {
+                        if (currentBooking) {
+                            removeDemoBooking(currentBooking.meetingId);
+                            bookedEmails.delete(currentBooking.email);
+                            currentBooking = null;
+                        }
+
+                        document.getElementById('success-section').innerHTML = `
+                            <div class="success-icon" style="background: var(--danger-light);">
+                                <i class="bi bi-x-lg" style="color: var(--danger);"></i>
+                            </div>
+                            <h3>Booking Cancelled</h3>
+                            <p>Your meeting has been removed from the calendar.</p>
+                            <div class="demo-note">
+                                <i class="bi bi-info-circle"></i>
+                                <span>This is a demo. In production, the calendar event would be deleted.</span>
+                            </div>
+                            <div class="action-buttons" style="margin-top: 16px;">
+                                <button class="action-btn primary" onclick="resetBooking()">
+                                    <i class="bi bi-plus-circle"></i> Book New Meeting
+                                </button>
+                            </div>
+                        `;
+                        showToast('Booking cancelled successfully', 'success');
+                    }, 800);
+                }
+            });
         }
 
         // Event listeners
@@ -2214,42 +2358,7 @@
             });
 
             // Cancel booking button
-            document.getElementById('cancelBookingBtn').addEventListener('click', async () => {
-                const confirmed = await showConfirm(
-                    'Cancel Booking?',
-                    'This will remove the meeting from your calendar. This action cannot be undone.',
-                    'Yes, Cancel',
-                    'Keep It'
-                );
-
-                if (confirmed) {
-                    // Simulate cancellation for demo
-                    const cancelBtn = document.getElementById('cancelBookingBtn');
-                    cancelBtn.innerHTML = '<div class="spinner"></div> Cancelling...';
-                    cancelBtn.disabled = true;
-
-                    setTimeout(() => {
-                        // Show cancelled state
-                        document.getElementById('success-section').innerHTML = `
-                            <div class="success-icon" style="background: var(--danger-light);">
-                                <i class="bi bi-x-lg" style="color: var(--danger);"></i>
-                            </div>
-                            <h3>Booking Cancelled</h3>
-                            <p>Your meeting has been removed from the calendar.</p>
-                            <div class="demo-note">
-                                <i class="bi bi-info-circle"></i>
-                                <span>This is a demo. In production, the calendar event would be deleted.</span>
-                            </div>
-                            <div class="action-buttons" style="margin-top: 16px;">
-                                <button class="action-btn primary" onclick="resetBooking()">
-                                    <i class="bi bi-plus-circle"></i> Book New Meeting
-                                </button>
-                            </div>
-                        `;
-                        showToast('Booking cancelled successfully', 'success');
-                    }, 800);
-                }
-            });
+            attachCancelHandler();
         }
 
         // Start
