@@ -1,6 +1,27 @@
 # Dependencies
 node_modules/
 
+# Environment & Secrets - NEVER COMMIT THESE
+.env
+.env.local
+.env.production
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# OAuth Tokens - NEVER COMMIT THESE
+tokens.json
+*-tokens.json
+owner-tokens.json
+backend/tokens.json
+backend/*-tokens.json
+
+# Booking data
+bookings.json
+backend/bookings.json
+
 # IDE
 .idea/
 .vscode/
