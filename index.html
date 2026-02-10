@@ -1569,7 +1569,6 @@
         let selectedDate = null;
         let selectedSlot = null;
         let isEmailVerified = false;
-        let bookedEmails = new Set(); // Track booked emails for demo
         let selectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         let currentBooking = null; // Current booking for cancel feature
 
@@ -1759,9 +1758,6 @@
             }
             if (isPersonalEmail(email)) {
                 return { valid: false, error: 'Please use a business email (no Gmail, Yahoo, etc.)' };
-            }
-            if (bookedEmails.has(email.toLowerCase())) {
-                return { valid: false, error: 'This email already has a booking' };
             }
             return { valid: true };
         }
@@ -2081,7 +2077,6 @@
             submitBtn.innerHTML = '<div class="spinner"></div> Booking...';
 
             setTimeout(() => {
-                bookedEmails.add(email);
                 showSuccess();
             }, 1000);
         }
@@ -2262,7 +2257,6 @@
                     setTimeout(() => {
                         if (currentBooking) {
                             removeDemoBooking(currentBooking.meetingId);
-                            bookedEmails.delete(currentBooking.email);
                             currentBooking = null;
                         }
 
