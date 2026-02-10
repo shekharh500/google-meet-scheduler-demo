@@ -389,20 +389,119 @@
             border: 2px solid var(--primary);
         }
 
-        .timezone-info {
-            margin-top: 24px;
-            padding: 12px;
-            background: var(--gray-100);
-            border-radius: 8px;
-            font-size: 13px;
-            color: var(--text-secondary);
+        /* Timezone Selector */
+        .timezone-selector {
+            position: relative;
+            margin-top: 16px;
+        }
+
+        .tz-trigger {
             display: flex;
             align-items: center;
             gap: 8px;
+            padding: 10px 12px;
+            background: var(--gray-100);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
         }
 
-        .timezone-info i {
+        .tz-trigger:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .tz-trigger i:first-child {
             color: var(--gray-400);
+        }
+
+        .tz-label {
+            flex: 1;
+        }
+
+        .tz-arrow {
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .timezone-selector.open .tz-arrow {
+            transform: rotate(180deg);
+        }
+
+        .tz-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            max-height: 280px;
+        }
+
+        .timezone-selector.open .tz-dropdown {
+            display: flex;
+        }
+
+        .tz-search {
+            padding: 10px 12px;
+            border: none;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+            outline: none;
+            background: transparent;
+            color: var(--text-primary);
+        }
+
+        .tz-search::placeholder {
+            color: var(--gray-400);
+        }
+
+        .tz-list {
+            overflow-y: auto;
+            max-height: 220px;
+        }
+
+        .tz-group-label {
+            padding: 8px 12px 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-400);
+            background: var(--gray-50);
+        }
+
+        .tz-option {
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: background 0.15s;
+        }
+
+        .tz-option:hover {
+            background: var(--primary-light);
+        }
+
+        .tz-option.selected {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .tz-no-results {
+            padding: 16px 12px;
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 13px;
         }
 
         /* Right Panel */
@@ -854,6 +953,16 @@
             background: var(--gray-100);
         }
 
+        .action-btn.danger {
+            background: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .action-btn.danger:hover {
+            background: var(--danger-light);
+        }
+
         /* Confetti */
         .confetti-container {
             position: fixed;
@@ -1203,9 +1312,16 @@
                     <div class="weekday">Sat</div>
                 </div>
 
-                <div class="timezone-info">
-                    <i class="bi bi-globe2"></i>
-                    <span id="timezone-display">Loading...</span>
+                <div class="timezone-selector" id="timezoneSelector">
+                    <div class="tz-trigger" id="tzTrigger">
+                        <i class="bi bi-globe2"></i>
+                        <span class="tz-label" id="tzLabel">Detecting...</span>
+                        <i class="bi bi-chevron-down tz-arrow"></i>
+                    </div>
+                    <div class="tz-dropdown" id="tzDropdown">
+                        <input type="text" class="tz-search" id="tzSearch" placeholder="Search timezone...">
+                        <div class="tz-list" id="tzList"></div>
+                    </div>
                 </div>
             </div>
 
@@ -1324,6 +1440,9 @@
                         <button class="action-btn secondary" id="tryAgain">
                             <i class="bi bi-plus-circle"></i> Book Another Meeting
                         </button>
+                        <button class="action-btn danger" id="cancelBookingBtn">
+                            <i class="bi bi-x-circle"></i> Cancel Booking
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1416,6 +1535,34 @@
             6: null                               // Saturday (closed)
         };
 
+        // Common timezones grouped by region
+        const TIMEZONE_LIST = [
+            { group: 'Americas', zones: [
+                { value: 'Pacific/Honolulu', label: 'Hawaii (HST)' },
+                { value: 'America/Anchorage', label: 'Alaska (AKST)' },
+                { value: 'America/Los_Angeles', label: 'Pacific Time (PST)' },
+                { value: 'America/Denver', label: 'Mountain Time (MST)' },
+                { value: 'America/Chicago', label: 'Central Time (CST)' },
+                { value: 'America/New_York', label: 'Eastern Time (EST)' },
+                { value: 'America/Sao_Paulo', label: 'São Paulo (BRT)' }
+            ]},
+            { group: 'Europe', zones: [
+                { value: 'Europe/London', label: 'London (GMT)' },
+                { value: 'Europe/Paris', label: 'Paris (CET)' },
+                { value: 'Europe/Berlin', label: 'Berlin (CET)' },
+                { value: 'Europe/Amsterdam', label: 'Amsterdam (CET)' },
+                { value: 'Europe/Moscow', label: 'Moscow (MSK)' }
+            ]},
+            { group: 'Asia/Pacific', zones: [
+                { value: 'Asia/Dubai', label: 'Dubai (GST)' },
+                { value: 'Asia/Kolkata', label: 'India (IST)' },
+                { value: 'Asia/Singapore', label: 'Singapore (SGT)' },
+                { value: 'Asia/Hong_Kong', label: 'Hong Kong (HKT)' },
+                { value: 'Asia/Tokyo', label: 'Tokyo (JST)' },
+                { value: 'Australia/Sydney', label: 'Sydney (AEDT)' }
+            ]}
+        ];
+
         // State
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
@@ -1423,6 +1570,7 @@
         let selectedSlot = null;
         let isEmailVerified = false;
         let bookedEmails = new Set(); // Track booked emails for demo
+        let selectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
         // DOM Elements
         const emailInput = document.getElementById('email');
@@ -1434,12 +1582,116 @@
 
         // Initialize
         function init() {
-            document.getElementById('timezone-display').textContent =
-                `Times shown in ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
+            setupTimezoneSelector();
             renderCalendar();
             setupEventListeners();
             setupOtpBoxes();
             loadTheme();
+        }
+
+        // Searchable timezone dropdown
+        function setupTimezoneSelector() {
+            const selector = document.getElementById('timezoneSelector');
+            const trigger = document.getElementById('tzTrigger');
+            const dropdown = document.getElementById('tzDropdown');
+            const search = document.getElementById('tzSearch');
+            const list = document.getElementById('tzList');
+            const label = document.getElementById('tzLabel');
+
+            // Get all zones as flat array
+            const allZones = TIMEZONE_LIST.flatMap(g => g.zones);
+
+            // Find label for a timezone value
+            function getLabelForValue(value) {
+                const zone = allZones.find(z => z.value === value);
+                return zone ? zone.label : value.replace(/_/g, ' ');
+            }
+
+            // Select a timezone
+            function selectTimezone(value, displayLabel) {
+                selectedTimezone = value;
+                label.textContent = displayLabel || getLabelForValue(value);
+                selector.classList.remove('open');
+                search.value = '';
+                renderList();
+            }
+
+            // Render the timezone list
+            function renderList(filter = '') {
+                list.innerHTML = '';
+                const filterLower = filter.toLowerCase();
+                let hasResults = false;
+
+                TIMEZONE_LIST.forEach(group => {
+                    const matchingZones = group.zones.filter(z =>
+                        z.label.toLowerCase().includes(filterLower) ||
+                        z.value.toLowerCase().includes(filterLower)
+                    );
+
+                    if (matchingZones.length > 0) {
+                        hasResults = true;
+                        const groupLabel = document.createElement('div');
+                        groupLabel.className = 'tz-group-label';
+                        groupLabel.textContent = group.group;
+                        list.appendChild(groupLabel);
+
+                        matchingZones.forEach(zone => {
+                            const option = document.createElement('div');
+                            option.className = 'tz-option' + (zone.value === selectedTimezone ? ' selected' : '');
+                            option.textContent = zone.label;
+                            option.addEventListener('click', () => selectTimezone(zone.value, zone.label));
+                            list.appendChild(option);
+                        });
+                    }
+                });
+
+                // Show detected timezone if not in curated list
+                const detectedInList = allZones.some(z => z.value === selectedTimezone);
+                if (!detectedInList) {
+                    const detectedLabel = selectedTimezone.replace(/_/g, ' ') + ' (detected)';
+                    if (detectedLabel.toLowerCase().includes(filterLower)) {
+                        hasResults = true;
+                        const groupLabel = document.createElement('div');
+                        groupLabel.className = 'tz-group-label';
+                        groupLabel.textContent = 'Detected';
+                        list.appendChild(groupLabel);
+
+                        const option = document.createElement('div');
+                        option.className = 'tz-option selected';
+                        option.textContent = detectedLabel;
+                        option.addEventListener('click', () => selectTimezone(selectedTimezone, detectedLabel));
+                        list.appendChild(option);
+                    }
+                }
+
+                if (!hasResults) {
+                    list.innerHTML = '<div class="tz-no-results">No timezones found</div>';
+                }
+            }
+
+            // Toggle dropdown
+            trigger.addEventListener('click', () => {
+                selector.classList.toggle('open');
+                if (selector.classList.contains('open')) {
+                    search.focus();
+                }
+            });
+
+            // Search filter
+            search.addEventListener('input', (e) => {
+                renderList(e.target.value);
+            });
+
+            // Close on outside click
+            document.addEventListener('click', (e) => {
+                if (!selector.contains(e.target)) {
+                    selector.classList.remove('open');
+                }
+            });
+
+            // Initial render
+            label.textContent = getLabelForValue(selectedTimezone);
+            renderList();
         }
 
         // Theme Toggle
@@ -1959,6 +2211,44 @@
             document.getElementById('joinMeetBtn').addEventListener('click', (e) => {
                 e.preventDefault();
                 showToast('This is a demo. In production, this would open your Google Meet link!', 'info');
+            });
+
+            // Cancel booking button
+            document.getElementById('cancelBookingBtn').addEventListener('click', async () => {
+                const confirmed = await showConfirm(
+                    'Cancel Booking?',
+                    'This will remove the meeting from your calendar. This action cannot be undone.',
+                    'Yes, Cancel',
+                    'Keep It'
+                );
+
+                if (confirmed) {
+                    // Simulate cancellation for demo
+                    const cancelBtn = document.getElementById('cancelBookingBtn');
+                    cancelBtn.innerHTML = '<div class="spinner"></div> Cancelling...';
+                    cancelBtn.disabled = true;
+
+                    setTimeout(() => {
+                        // Show cancelled state
+                        document.getElementById('success-section').innerHTML = `
+                            <div class="success-icon" style="background: var(--danger-light);">
+                                <i class="bi bi-x-lg" style="color: var(--danger);"></i>
+                            </div>
+                            <h3>Booking Cancelled</h3>
+                            <p>Your meeting has been removed from the calendar.</p>
+                            <div class="demo-note">
+                                <i class="bi bi-info-circle"></i>
+                                <span>This is a demo. In production, the calendar event would be deleted.</span>
+                            </div>
+                            <div class="action-buttons" style="margin-top: 16px;">
+                                <button class="action-btn primary" onclick="resetBooking()">
+                                    <i class="bi bi-plus-circle"></i> Book New Meeting
+                                </button>
+                            </div>
+                        `;
+                        showToast('Booking cancelled successfully', 'success');
+                    }, 800);
+                }
             });
         }
 

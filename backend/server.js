@@ -676,6 +676,121 @@ app.post('/api/book', async (req, res) => {
     }
 });
 
+// Cancel a booking
+app.post('/api/cancel', async (req, res) => {
+    const { eventId, email } = req.body;
+
+    if (!eventId || !email) {
+        return res.status(400).json({
+            success: false,
+            error: 'Missing required fields: eventId, email'
+        });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
+    try {
+        const calendar = await getCalendarClient();
+        if (!calendar) {
+            return res.status(503).json({
+                success: false,
+                error: 'Calendar service temporarily unavailable'
+            });
+        }
+
+        // Verify the booking exists and belongs to this email
+        const bookings = loadBookings();
+        let booking = bookings.find(b =>
+            b.eventId === eventId && b.email.toLowerCase().trim() === normalizedEmail
+        );
+
+        // If not found in file, verify from Google Calendar
+        if (!booking) {
+            try {
+                const event = await calendar.events.get({
+                    calendarId: 'primary',
+                    eventId: eventId
+                });
+
+                const attendees = event.data.attendees || [];
+                const isAttendee = attendees.some(a =>
+                    a.email && a.email.toLowerCase().trim() === normalizedEmail
+                );
+
+                const description = event.data.description || '';
+                const emailInDescription = description.toLowerCase().includes(`email: ${normalizedEmail}`);
+
+                if (!isAttendee && !emailInDescription) {
+                    return res.status(404).json({
+                        success: false,
+                        error: 'Booking not found or email does not match'
+                    });
+                }
+
+                booking = {
+                    eventId: eventId,
+                    email: normalizedEmail,
+                    startTime: event.data.start.dateTime
+                };
+            } catch (fetchError) {
+                if (fetchError.code === 404) {
+                    return res.status(404).json({
+                        success: false,
+                        error: 'Booking not found or already cancelled'
+                    });
+                }
+                throw fetchError;
+            }
+        }
+
+        // Check that the meeting is in the future
+        const meetingStart = new Date(booking.startTime);
+        if (meetingStart <= new Date()) {
+            return res.status(400).json({
+                success: false,
+                error: 'Cannot cancel a meeting that has already started or passed'
+            });
+        }
+
+        // Delete the Google Calendar event
+        await calendar.events.delete({
+            calendarId: 'primary',
+            eventId: eventId,
+            sendUpdates: 'all'
+        });
+
+        // Remove from bookings file
+        try {
+            const updatedBookings = bookings.filter(b => b.eventId !== eventId);
+            fs.writeFileSync(BOOKINGS_FILE, JSON.stringify(updatedBookings, null, 2));
+        } catch (fileError) {
+            console.log('Could not update bookings file:', fileError.message);
+        }
+
+        console.log(`Booking cancelled: ${normalizedEmail} - ${eventId}`);
+
+        res.json({
+            success: true,
+            message: 'Booking has been cancelled successfully'
+        });
+
+    } catch (error) {
+        console.error('Cancel error:', error);
+
+        if (error.code === 404 || error.code === 410) {
+            return res.json({
+                success: true,
+                message: 'Booking has been cancelled'
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            error: `Cancel failed: ${error.message}`
+        });
+    }
+});
+
 // Generate ICS file
 function generateICS(name, email, start, end, meetLink, notes) {
     const formatDate = (d) => new Date(d).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
