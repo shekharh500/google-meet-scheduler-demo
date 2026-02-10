@@ -164,8 +164,10 @@ function timeToMinutes(timeStr) {
 }
 
 function formatTimeDisplay(hours, minutes) {
-    const displayHour = hours > 12 ? hours - 12 : (hours === 0 ? 12 : hours);
-    const period = hours >= 12 ? 'PM' : 'AM';
+    // Handle 24:00 as midnight (12 AM)
+    const normalizedHours = hours === 24 ? 0 : hours;
+    const displayHour = normalizedHours > 12 ? normalizedHours - 12 : (normalizedHours === 0 ? 12 : normalizedHours);
+    const period = normalizedHours >= 12 ? 'PM' : 'AM';
     return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
 }
 
@@ -362,6 +364,11 @@ app.get('/api/config', (req, res) => {
 
 // Get available dates for a month
 app.get('/api/available-dates', async (req, res) => {
+    // Prevent caching to always get fresh data
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
     if (!isAuthenticated()) {
         return res.status(503).json({ success: false, error: 'Calendar not connected' });
     }
@@ -394,6 +401,11 @@ app.get('/api/available-dates', async (req, res) => {
 
 // Get available time slots for a date
 app.get('/api/availability', async (req, res) => {
+    // Prevent caching to always get fresh availability
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+
     const { date } = req.query;
     if (!date) return res.status(400).json({ success: false, error: 'Date required' });
 
