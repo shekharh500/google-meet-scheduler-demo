@@ -2272,9 +2272,14 @@
 
         // Setup smart back link based on where user came from
         function setupBackLink() {
+            // In demo mode, these elements don't exist - just return
+            if (DEMO_MODE) return;
+
             const backLink = document.getElementById('backToProfileLink');
             const backLinkText = document.getElementById('backLinkText');
             const brandLink = document.getElementById('brandLink');
+
+            if (!backLink || !brandLink) return; // Elements don't exist
 
             // Define the redirect URLs for each source
             const defaultUrl = 'https://himanshu-shekhar.com/';
@@ -2287,17 +2292,14 @@
 
             let targetUrl = defaultUrl;
             if (source === 'upwork') {
-                // Came from Upwork page
                 targetUrl = upworkUrl;
             } else if (source === 'profile') {
-                // Came from profile page
                 targetUrl = profileUrl;
             }
 
-            // Apply same URL to both brand link and back link
             backLink.href = targetUrl;
             brandLink.href = targetUrl;
-            backLinkText.textContent = 'Back to Profile';
+            if (backLinkText) backLinkText.textContent = 'Back to Profile';
         }
 
         // Setup Event Listeners
