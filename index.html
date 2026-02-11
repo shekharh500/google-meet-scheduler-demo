@@ -2919,10 +2919,8 @@
 
             // DEMO MODE: Generate mock available dates
             if (DEMO_MODE) {
-                setTimeout(() => {
-                    availableDates = generateDemoAvailableDates(month, year);
-                    renderCalendar();
-                }, 300);
+                availableDates = generateDemoAvailableDates(month, year);
+                renderCalendar();
                 return;
             }
 
@@ -3071,19 +3069,17 @@
 
             // DEMO MODE: Generate mock time slots
             if (DEMO_MODE) {
-                setTimeout(() => {
-                    const slots = generateDemoSlots(dateStr);
-                    if (slots.length > 0) {
-                        availableSlots = slots;
-                        const tzAbbr = getUserTimezoneAbbr();
-                        rightPanelSubtitle.textContent = `${availableSlots.length} time${availableSlots.length > 1 ? 's' : ''} available · ${tzAbbr}`;
-                        renderTimeSlotsFromAPI();
-                    } else {
-                        timeSection.classList.remove('visible');
-                        noSlotsMessage.style.display = 'block';
-                        rightPanelSubtitle.textContent = 'No availability';
-                    }
-                }, 300);
+                const slots = generateDemoSlots(dateStr);
+                if (slots.length > 0) {
+                    availableSlots = slots;
+                    const tzAbbr = getUserTimezoneAbbr();
+                    rightPanelSubtitle.textContent = `${availableSlots.length} time${availableSlots.length > 1 ? 's' : ''} available · ${tzAbbr}`;
+                    renderTimeSlotsFromAPI();
+                } else {
+                    timeSection.classList.remove('visible');
+                    noSlotsMessage.style.display = 'block';
+                    rightPanelSubtitle.textContent = 'No availability';
+                }
                 return;
             }
 
