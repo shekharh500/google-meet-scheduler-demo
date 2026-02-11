@@ -178,3 +178,4 @@ MIT License—free for personal and commercial use.
 ## Support
 
 Open an issue on [GitHub](https://github.com/shekharh500/google-meet-scheduler-demo/issues)
+
